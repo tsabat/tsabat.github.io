@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: vim - Boom</title>
+  <title>Installing a RapidSSL SSL cert on an AWS Load Balancer - Boom</title>
   <meta name="author" content="Timothy Sabat">
 
   
-  <meta name="description" content="Category: vim">
+  <meta name="description" content="Over at CodePen it came time to renew our SSL cert. I dutifully follwed the setup instructions, but I was greeted with this error: Invalid Public Key &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://tsabat.github.ioblog/categories/vim">
+  <link rel="canonical" href="http://tsabat.github.io/blog/2013/05/07/installing-a-rapidssl-ssl-cert-on-an-aws-load-balancer">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Boom" type="application/atom+xml">
@@ -64,35 +64,117 @@
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Category: Vim</h1>
+    
+      <h1 class="entry-title">Installing a RapidSSL SSL Cert on an AWS Load Balancer</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-07T20:25:00-07:00" pubdate data-updated="true">May 7<span>th</span>, 2013</time>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives" class="category">
 
 
+<div class="entry-content"><p>Over at <a href="http://codepen.io">CodePen</a> it came time to renew our SSL cert.  I dutifully follwed the <a href="https://knowledge.rapidssl.com/support/ssl-certificate-support/index?page=content&amp;id=SO21322&amp;actp=search&amp;viewlocale=en_US">setup instructions</a>, but I was greeted with this error:</p>
 
-  
-  <h2>2011</h2>
+<blockquote><p>Invalid Public Key Certificate</p></blockquote>
 
-<article>
-  
-<h1><a href="/blog/2011/12/28/how-to-manage-your-dotfiles-with-git/">How to manage your dotfiles with git</a></h1>
-<time datetime="2011-12-28T21:45:00-08:00" pubdate><span class='month'>Dec</span> <span class='day'>28</span> <span class='year'>2011</span></time>
+<p>After talking with the support staff at RapidSSL, I was told to reverse the Intermediate CA Bundle.  The example from <a href="https://knowledge.rapidssl.com/support/ssl-certificate-support/index?page=content&amp;id=SO21856&amp;actp=search&amp;viewlocale=en_US&amp;searchid=1367983787858">their instructions</a> looks like this:</p>
 
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/git/'>git</a>, <a class='category' href='/blog/categories/vim/'>vim</a></span>
-</footer>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>-----BEGIN CERTIFICATE----
+</span><span class='line'>Primary Intermediate CA
+</span><span class='line'>-----END CERTIFICATE-----
+</span><span class='line'>-----BEGIN CERTIFICATE-----
+</span><span class='line'>Secondary Intermediate CA
+</span><span class='line'>-----END CERTIFICATE-----
+</span><span class='line'>
+</span><span class='line'>Needs to be switched to..
+</span><span class='line'>
+</span><span class='line'>-----BEGIN CERTIFICATE-----
+</span><span class='line'>Secondary Intermediate CA
+</span><span class='line'>-----END CERTIFICATE-----
+</span><span class='line'>-----BEGIN CERTIFICATE-----
+</span><span class='line'>Primary Intermediate CA
+</span><span class='line'>-----END CERTIFICATE-----
+</span></code></pre></td></tr></table></div></figure>
 
 
-</article>
-
+<p>I&rsquo;m noting this here so in 2016 when we have to renew our SSL Cert, we&rsquo;ll know what to do.</p>
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">Timothy Sabat</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-07T20:25:00-07:00" pubdate data-updated="true">May 7<span>th</span>, 2013</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://tsabat.github.io/blog/2013/05/07/installing-a-rapidssl-ssl-cert-on-an-aws-load-balancer/" data-via="timsabat" data-counturl="http://tsabat.github.io/blog/2013/05/07/installing-a-rapidssl-ssl-cert-on-an-aws-load-balancer/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/02/28/set-up-a-static-host-only-network-for-virtualbox/" title="Previous Post: Set Up A Static Host-Only Network For Virtualbox">&laquo; Set Up A Static Host-Only Network For Virtualbox</a>
+      
+      
+    </p>
+  </footer>
 </article>
 
 </div>

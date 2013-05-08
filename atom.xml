@@ -4,7 +4,7 @@
   <title><![CDATA[Boom]]></title>
   <link href="http://tsabat.github.io/atom.xml" rel="self"/>
   <link href="http://tsabat.github.io/"/>
-  <updated>2013-05-07T20:23:16-07:00</updated>
+  <updated>2013-05-07T20:37:43-07:00</updated>
   <id>http://tsabat.github.io/</id>
   <author>
     <name><![CDATA[Timothy Sabat]]></name>
@@ -12,6 +12,54 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Installing a RapidSSL SSL cert on an AWS Load Balancer]]></title>
+    <link href="http://tsabat.github.io/blog/2013/05/07/installing-a-rapidssl-ssl-cert-on-an-aws-load-balancer/"/>
+    <updated>2013-05-07T20:25:00-07:00</updated>
+    <id>http://tsabat.github.io/blog/2013/05/07/installing-a-rapidssl-ssl-cert-on-an-aws-load-balancer</id>
+    <content type="html"><![CDATA[<p>Over at <a href="http://codepen.io">CodePen</a> it came time to renew our SSL cert.  I dutifully follwed the <a href="https://knowledge.rapidssl.com/support/ssl-certificate-support/index?page=content&amp;id=SO21322&amp;actp=search&amp;viewlocale=en_US">setup instructions</a>, but I was greeted with this error:</p>
+
+<blockquote><p>Invalid Public Key Certificate</p></blockquote>
+
+<p>After talking with the support staff at RapidSSL, I was told to reverse the Intermediate CA Bundle.  The example from <a href="https://knowledge.rapidssl.com/support/ssl-certificate-support/index?page=content&amp;id=SO21856&amp;actp=search&amp;viewlocale=en_US&amp;searchid=1367983787858">their instructions</a> looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>-----BEGIN CERTIFICATE----
+</span><span class='line'>Primary Intermediate CA
+</span><span class='line'>-----END CERTIFICATE-----
+</span><span class='line'>-----BEGIN CERTIFICATE-----
+</span><span class='line'>Secondary Intermediate CA
+</span><span class='line'>-----END CERTIFICATE-----
+</span><span class='line'>
+</span><span class='line'>Needs to be switched to..
+</span><span class='line'>
+</span><span class='line'>-----BEGIN CERTIFICATE-----
+</span><span class='line'>Secondary Intermediate CA
+</span><span class='line'>-----END CERTIFICATE-----
+</span><span class='line'>-----BEGIN CERTIFICATE-----
+</span><span class='line'>Primary Intermediate CA
+</span><span class='line'>-----END CERTIFICATE-----
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I&rsquo;m noting this here so in 2016 when we have to renew our SSL Cert, we&rsquo;ll know what to do.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Set Up A Static Host-Only Network For Virtualbox]]></title>
