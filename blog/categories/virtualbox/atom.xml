@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: virtualbox | Boom]]></title>
+  <link href="http://tsabat.github.io/blog/categories/virtualbox/atom.xml" rel="self"/>
+  <link href="http://tsabat.github.io/"/>
+  <updated>2013-05-07T20:23:16-07:00</updated>
+  <id>http://tsabat.github.io/</id>
+  <author>
+    <name><![CDATA[Timothy Sabat]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Chef Recipe To Upgrade Virtualbox Additions]]></title>
+    <link href="http://tsabat.github.io/blog/2011/12/20/chef-recipe-to-upgrade-virtualbox-additions/"/>
+    <updated>2011-12-20T23:01:00-08:00</updated>
+    <id>http://tsabat.github.io/blog/2011/12/20/chef-recipe-to-upgrade-virtualbox-additions</id>
+    <content type="html"><![CDATA[<p>Every time the guys at VirtualBox update their software, you have to scramble to find resources to upgrade your virtualbox guest additions.  You also get the following annoying message.</p>
+
+<pre><code>[default] The guest additions on this VM do not match the install version of
+VirtualBox! This may cause things such as forwarded ports, shared
+folders, and more to not work properly. If any of those things fail on
+this machine, please update the guest additions and repackage the
+box.
+</code></pre>
+
+<p>To prevent this from being a hassle, I created this chef recipe to help ease our suffering.</p>
+
+<script src="https://gist.github.com/1505022.js?file=upgrade_guest_additions.rb"></script>
+
+
+<p>You will probably have to restart your vagrant box for this to work.  I&rsquo;m not 100% sure.</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: tips | Boom]]></title>
+  <link href="http://tsabat.github.io/blog/categories/tips/atom.xml" rel="self"/>
+  <link href="http://tsabat.github.io/"/>
+  <updated>2013-05-07T20:23:16-07:00</updated>
+  <id>http://tsabat.github.io/</id>
+  <author>
+    <name><![CDATA[Timothy Sabat]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Command-Line Resources]]></title>
+    <link href="http://tsabat.github.io/blog/2011/12/19/command-line-resources/"/>
+    <updated>2011-12-19T08:07:00-08:00</updated>
+    <id>http://tsabat.github.io/blog/2011/12/19/command-line-resources</id>
+    <content type="html"><![CDATA[<h3>SSH Tips</h3>
+
+<p>This excellent article entitled <a href="http://shebang.brandonmintern.com/tips-for-remote-unix-work-ssh-screen-and-vnc#">Tips for Remote Unix Work</a> covers some vital SSH goodness.  For example, copying your public ssh key</p>
+
+<pre><code>ssh user@example.com 'mkdir -p .ssh &amp;&amp; cat &gt;&gt; .ssh/authorized_keys' &lt; ~/.ssh/id_rsa.pub
+</code></pre>
+
+<p>and piping commands via SSH without logging into the remote machine</p>
+
+<pre><code>cd &amp;&amp; tar czv src | ssh example.com 'tar xz'
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

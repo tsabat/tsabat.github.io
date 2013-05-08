@@ -1,100 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
 
-<!DOCTYPE html>
-<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
-<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
-<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
-<head>
-  <meta charset="utf-8">
-  <title>Boom</title>
-  <meta name="author" content="Timothy Sabat">
-
-  
-  <meta name="description" content="Intro Setting up a Host-Only Network with Ubuntu Server requires some knowledge of networking. But why accumulate knowledge when you can simply copy &hellip;">
-  
-
-  <!-- http://t.co/dKP3o1e -->
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  
-  <link rel="canonical" href="http://tsabat.github.io">
-  <link href="/favicon.png" rel="icon">
-  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/atom.xml" rel="alternate" title="Boom" type="application/atom+xml">
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-
-  
-
-</head>
-
-<body   >
-  <header role="banner"><hgroup>
-  <h1><a href="/">Boom</a></h1>
-  
-    <h2>Difficult takes a day, impossible takes a week.</h2>
-  
-</hgroup>
-
-</header>
-  <nav role="navigation"><ul class="subscription" data-subscription="rss">
-  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
-  
-</ul>
-  
-<form action="http://google.com/search" method="get">
-  <fieldset role="search">
-    <input type="hidden" name="q" value="site:tsabat.github.io" />
-    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
-  </fieldset>
-</form>
-  
-<ul class="main-navigation">
-  <li><a href="/">Blog</a></li>
-  <li><a href="/blog/archives">Archives</a></li>
-</ul>
-
-</nav>
-  <div id="main">
-    <div id="content">
-      <div class="blog-index">
-  
-  
-  
-    <article>
-      
-  <header>
+  <title><![CDATA[Boom]]></title>
+  <link href="http://tsabat.github.io/atom.xml" rel="self"/>
+  <link href="http://tsabat.github.io/"/>
+  <updated>2013-05-07T20:23:16-07:00</updated>
+  <id>http://tsabat.github.io/</id>
+  <author>
+    <name><![CDATA[Timothy Sabat]]></name>
     
-      <h1 class="entry-title"><a href="/blog/2012/02/28/set-up-a-static-host-only-network-for-virtualbox/">Set Up a Static Host-Only Network for Virtualbox</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
 
   
-
-
-<time datetime="2012-02-28T09:09:00-08:00" pubdate data-updated="true">Feb 28<span>th</span>, 2012</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>Intro</h2>
+  <entry>
+    <title type="html"><![CDATA[Set Up A Static Host-Only Network For Virtualbox]]></title>
+    <link href="http://tsabat.github.io/blog/2012/02/28/set-up-a-static-host-only-network-for-virtualbox/"/>
+    <updated>2012-02-28T09:09:00-08:00</updated>
+    <id>http://tsabat.github.io/blog/2012/02/28/set-up-a-static-host-only-network-for-virtualbox</id>
+    <content type="html"><![CDATA[<h2>Intro</h2>
 
 <p>Setting up a Host-Only Network with Ubuntu Server requires some knowledge of networking.  But why accumulate knowledge when you can simply copy snippets from the internet?</p>
 
@@ -159,42 +83,15 @@ eth1      Link encap:Ethernet  HWaddr 08:00:27:0e:e2:c0
 
 <p><a href="https://help.ubuntu.com/8.04/serverguide/C/network-configuration.html">Ubuntu Network Configuration</a>
 <a href="http://bowerstudios.com/node/722">Accessing Ubuntu Server in a VirtualBox Virtual Machine</a></p>
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2011/12/28/how-to-manage-your-dotfiles-with-git/">How to Manage Your Dotfiles With Git</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-12-28T21:45:00-08:00" pubdate data-updated="true">Dec 28<span>th</span>, 2011</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3>Update</h3>
+  <entry>
+    <title type="html"><![CDATA[How to manage your dotfiles with git]]></title>
+    <link href="http://tsabat.github.io/blog/2011/12/28/how-to-manage-your-dotfiles-with-git/"/>
+    <updated>2011-12-28T21:45:00-08:00</updated>
+    <id>http://tsabat.github.io/blog/2011/12/28/how-to-manage-your-dotfiles-with-git</id>
+    <content type="html"><![CDATA[<h3>Update</h3>
 
 <p>The blog post below is over-simplified.  You should follow the steps outlined by the <a href="http://vimcasts.org/episodes/synchronizing-plugins-with-git-submodules-and-pathogen/">vimcast</a> guys.</p>
 
@@ -243,42 +140,15 @@ git init
 git add .
 git commit -a -m 'My first dotfile commit'
 </code></pre>
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2011/12/20/chef-recipe-to-upgrade-virtualbox-additions/">Chef Recipe to Upgrade Virtualbox Additions</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-12-20T23:01:00-08:00" pubdate data-updated="true">Dec 20<span>th</span>, 2011</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Every time the guys at VirtualBox update their software, you have to scramble to find resources to upgrade your virtualbox guest additions.  You also get the following annoying message.</p>
+  <entry>
+    <title type="html"><![CDATA[Chef Recipe To Upgrade Virtualbox Additions]]></title>
+    <link href="http://tsabat.github.io/blog/2011/12/20/chef-recipe-to-upgrade-virtualbox-additions/"/>
+    <updated>2011-12-20T23:01:00-08:00</updated>
+    <id>http://tsabat.github.io/blog/2011/12/20/chef-recipe-to-upgrade-virtualbox-additions</id>
+    <content type="html"><![CDATA[<p>Every time the guys at VirtualBox update their software, you have to scramble to find resources to upgrade your virtualbox guest additions.  You also get the following annoying message.</p>
 
 <pre><code>[default] The guest additions on this VM do not match the install version of
 VirtualBox! This may cause things such as forwarded ports, shared
@@ -293,42 +163,15 @@ box.
 
 
 <p>You will probably have to restart your vagrant box for this to work.  I&rsquo;m not 100% sure.</p>
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2011/12/19/command-line-resources/">Command-Line Resources</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-12-19T08:07:00-08:00" pubdate data-updated="true">Dec 19<span>th</span>, 2011</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3>SSH Tips</h3>
+  <entry>
+    <title type="html"><![CDATA[Command-Line Resources]]></title>
+    <link href="http://tsabat.github.io/blog/2011/12/19/command-line-resources/"/>
+    <updated>2011-12-19T08:07:00-08:00</updated>
+    <id>http://tsabat.github.io/blog/2011/12/19/command-line-resources</id>
+    <content type="html"><![CDATA[<h3>SSH Tips</h3>
 
 <p>This excellent article entitled <a href="http://shebang.brandonmintern.com/tips-for-remote-unix-work-ssh-screen-and-vnc#">Tips for Remote Unix Work</a> covers some vital SSH goodness.  For example, copying your public ssh key</p>
 
@@ -339,42 +182,15 @@ box.
 
 <pre><code>cd &amp;&amp; tar czv src | ssh example.com 'tar xz'
 </code></pre>
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2011/12/15/how-to-test-out-a-shared-vagrant-box/">How to Test Out a Shared Vagrant Box</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-12-15T12:17:00-08:00" pubdate data-updated="true">Dec 15<span>th</span>, 2011</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3>Intro</h3>
+  <entry>
+    <title type="html"><![CDATA[How to test out a shared vagrant box]]></title>
+    <link href="http://tsabat.github.io/blog/2011/12/15/how-to-test-out-a-shared-vagrant-box/"/>
+    <updated>2011-12-15T12:17:00-08:00</updated>
+    <id>http://tsabat.github.io/blog/2011/12/15/how-to-test-out-a-shared-vagrant-box</id>
+    <content type="html"><![CDATA[<h3>Intro</h3>
 
 <p>At some point, someone will offer to share a vagrant box with you.  These are the steps required to get that box working.</p>
 
@@ -427,42 +243,15 @@ yourshell$ shared_box
 <h3>All Done</h3>
 
 <p>With these steps in place, you&rsquo;re ready to start vagrant with the <code>vagrant_up</code> command.</p>
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2011/12/12/setting-up-a-vagrant-development-environment/">Setting Up a Vagrant Development Environment</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-12-12T13:59:00-08:00" pubdate data-updated="true">Dec 12<span>th</span>, 2011</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3>Install the Vagrant gem</h3>
+  <entry>
+    <title type="html"><![CDATA[Setting Up A Vagrant Development Environment]]></title>
+    <link href="http://tsabat.github.io/blog/2011/12/12/setting-up-a-vagrant-development-environment/"/>
+    <updated>2011-12-12T13:59:00-08:00</updated>
+    <id>http://tsabat.github.io/blog/2011/12/12/setting-up-a-vagrant-development-environment</id>
+    <content type="html"><![CDATA[<h3>Install the Vagrant gem</h3>
 
 <p>You need vagrant installed for this process to work.  Vagrant depends on a version of ruby we&rsquo;ll set up using the <a href="http://beginrescueend.com/">Ruby Version Manager</a>, as shown below.  This can take a while, so be patient.  A quick note for mac developers: RVM installs Ruby from source.  In order to do so, you will need <a href="http://developer.apple.com/xcode/">Xcode</a> installed.  You can try using another gcc, but for one-stop goodness, install Xcode and move along.</p>
 
@@ -623,42 +412,15 @@ end
 <h3>Conclusion</h3>
 
 <p>You&rsquo;ve set up a Vagrant Development Environment.  Now, write a recipe.</p>
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2011/12/11/installing-chef-client-and-chef-server/">Installing Chef Client and Chef Server</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-12-11T23:31:00-08:00" pubdate data-updated="true">Dec 11<span>th</span>, 2011</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3>This guide will get you up and running with chef server and client on the same Windows 2008 Server.</h3>
+  <entry>
+    <title type="html"><![CDATA[Installing Chef Client and Chef Server]]></title>
+    <link href="http://tsabat.github.io/blog/2011/12/11/installing-chef-client-and-chef-server/"/>
+    <updated>2011-12-11T23:31:00-08:00</updated>
+    <id>http://tsabat.github.io/blog/2011/12/11/installing-chef-client-and-chef-server</id>
+    <content type="html"><![CDATA[<h3>This guide will get you up and running with chef server and client on the same Windows 2008 Server.</h3>
 
 <p>The instructions outlined herin are a distillaiton of the <a href="http://wiki.opscode.com/display/chef/Fast+Start+Guide+for+Windows#FastStartGuideforWindows-Step1%253ACreateaHostedChefaccount">Chef Fast-Start Guide For Windows</a></p>
 
@@ -781,42 +543,15 @@ st.
 <pre><code>cd %HOMEPATH%\chef-repo
 knife client list
 </code></pre>
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2011/12/08/vagrant-boxes-and-veewee/">Vagrant Boxes and Veewee</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-12-08T22:02:00-08:00" pubdate data-updated="true">Dec 8<span>th</span>, 2011</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3>11PM Thursday Night</h3>
+  <entry>
+    <title type="html"><![CDATA[Vagrant Boxes and veewee]]></title>
+    <link href="http://tsabat.github.io/blog/2011/12/08/vagrant-boxes-and-veewee/"/>
+    <updated>2011-12-08T22:02:00-08:00</updated>
+    <id>http://tsabat.github.io/blog/2011/12/08/vagrant-boxes-and-veewee</id>
+    <content type="html"><![CDATA[<h3>11PM Thursday Night</h3>
 
 <p>I&rsquo;ve been trying to get Windows 2008 <a href="vagrantup.com">vagrant</a> box up and running and I&rsquo;ve had little luck.  According to instructions on <a href="http://www.ducea.com/2011/08/15/building-vagrant-boxes-with-veewee/">ducea.com</a>, the creation of a base windows box sould be a breeze using the <a href="https://github.com/jedi4ever/veewee">veewee</a> gem, but the postinstall.sh script placed in the base of the cygwin install had several errors.</p>
 
@@ -831,113 +566,7 @@ knife client list
 <li>Also, the ruby installer looks like it wants to pull the 32 bit install.  Is that right?</li>
 </ol>
 
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-    </article>
-  
-  <div class="pagination">
-    
-    <a href="/blog/archives">Blog Archives</a>
-    
-  </div>
-</div>
-<aside class="sidebar">
-  
-    <section>
-  <h1>Recent Posts</h1>
-  <ul id="recent_posts">
-    
-      <li class="post">
-        <a href="/blog/2012/02/28/set-up-a-static-host-only-network-for-virtualbox/">Set Up A Static Host-Only Network For Virtualbox</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2011/12/28/how-to-manage-your-dotfiles-with-git/">How to manage your dotfiles with git</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2011/12/20/chef-recipe-to-upgrade-virtualbox-additions/">Chef Recipe To Upgrade Virtualbox Additions</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2011/12/19/command-line-resources/">Command-Line Resources</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2011/12/15/how-to-test-out-a-shared-vagrant-box/">How to test out a shared vagrant box</a>
-      </li>
-    
-  </ul>
-</section>
-
-<section>
-  <h1>GitHub Repos</h1>
-  <ul id="gh_repos">
-    <li class="loading">Status updating&#8230;</li>
-  </ul>
-  
-  <a href="https://github.com/tsabat">@tsabat</a> on GitHub
-  
-  <script type="text/javascript">
-    $(document).ready(function(){
-        if (!window.jXHR){
-            var jxhr = document.createElement('script');
-            jxhr.type = 'text/javascript';
-            jxhr.src = '/javascripts/libs/jXHR.js';
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(jxhr, s);
-        }
-
-        github.showRepos({
-            user: 'tsabat',
-            count: 0,
-            skip_forks: true,
-            target: '#gh_repos'
-        });
-    });
-  </script>
-  <script src="/javascripts/github.js" type="text/javascript"> </script>
-</section>
-
-
-
-
-
-  
-</aside>
-
-    </div>
-  </div>
-  <footer role="contentinfo"><p>
-  Copyright &copy; 2013 - Timothy Sabat -
-  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
-</p>
-
-</footer>
-  
-
-
-
-
-
-
-
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
-
-
-
-
-
-</body>
-</html>
+</feed>

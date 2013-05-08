@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: vim | Boom]]></title>
+  <link href="http://tsabat.github.io/blog/categories/vim/atom.xml" rel="self"/>
+  <link href="http://tsabat.github.io/"/>
+  <updated>2013-05-07T20:23:16-07:00</updated>
+  <id>http://tsabat.github.io/</id>
+  <author>
+    <name><![CDATA[Timothy Sabat]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[How to manage your dotfiles with git]]></title>
+    <link href="http://tsabat.github.io/blog/2011/12/28/how-to-manage-your-dotfiles-with-git/"/>
+    <updated>2011-12-28T21:45:00-08:00</updated>
+    <id>http://tsabat.github.io/blog/2011/12/28/how-to-manage-your-dotfiles-with-git</id>
+    <content type="html"><![CDATA[<h3>Update</h3>
+
+<p>The blog post below is over-simplified.  You should follow the steps outlined by the <a href="http://vimcasts.org/episodes/synchronizing-plugins-with-git-submodules-and-pathogen/">vimcast</a> guys.</p>
+
+<h3>Objective</h3>
+
+<p>Programs like vim, bash, and zsh all use <code>dotfiles</code> for configuration.  You want to back them up in case of disaster.  Here&rsquo;s how I handle that using a <code>.dotfiles</code> directory and symlinks.</p>
+
+<h3>Where Do My <code>dotfiles</code> Live?</h3>
+
+<p>By default vim, bash, zsh and other programs store <code>dotfiles</code> in your home directory. You can view the dotfiles in your home directory like so:</p>
+
+<pre><code>cd
+ls -al
+</code></pre>
+
+<h3>Vim As An Example</h3>
+
+<p>In the following steps, you&rsquo;ll learn how to back up your Vim configuration to a directory named <code>.dotfiles</code>.</p>
+
+<p>To get started, create your <code>.dotfiles</code> directory.</p>
+
+<pre><code>cd
+mkdir -p .dotfiles/vim
+</code></pre>
+
+<p>Note: The <code>-p</code> option tells bash to create the directory recursively, building the entire path if it does not exist.</p>
+
+<p>Now, move your <code>.vim</code> and <code>.vimrc</code> files to your <code>.dotfiles</code> directory.</p>
+
+<pre><code>mv .vimrc .vim .dotfiles/vim
+</code></pre>
+
+<p>Finally, <a href="http://www.tech-recipes.com/rx/172/create_a_symbolic_link_in_unix_solaris_linux/">symlink</a> the files and folders you just moved back to their original location.</p>
+
+<pre><code>cd
+ln -s .dotfiles/vim/.vimrc .vimrc
+ln -s .dotfiles/vim/.vim .vim
+</code></pre>
+
+<h3>Back It Up</h3>
+
+<p>Remember to use whatever source control system you like to back up your <code>.dotfiles</code> directory.  I prefer git.</p>
+
+<pre><code>cd ~/.dotfiles
+git init
+git add .
+git commit -a -m 'My first dotfile commit'
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,402 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Setting Up A Vagrant Development Environment - Boom</title>
+  <meta name="author" content="Timothy Sabat">
+
+  
+  <meta name="description" content="Install the Vagrant gem You need vagrant installed for this process to work. Vagrant depends on a version of ruby we&rsquo;ll set up using the Ruby &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://tsabat.github.io/blog/2011/12/12/setting-up-a-vagrant-development-environment">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Boom" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Boom</a></h1>
+  
+    <h2>Difficult takes a day, impossible takes a week.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:tsabat.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Setting Up a Vagrant Development Environment</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-12T13:59:00-08:00" pubdate data-updated="true">Dec 12<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h3>Install the Vagrant gem</h3>
+
+<p>You need vagrant installed for this process to work.  Vagrant depends on a version of ruby we&rsquo;ll set up using the <a href="http://beginrescueend.com/">Ruby Version Manager</a>, as shown below.  This can take a while, so be patient.  A quick note for mac developers: RVM installs Ruby from source.  In order to do so, you will need <a href="http://developer.apple.com/xcode/">Xcode</a> installed.  You can try using another gcc, but for one-stop goodness, install Xcode and move along.</p>
+
+<pre><code>bash &lt; &lt;(curl -s https://raw.github.com/wayneeseguin/rvm/master/binscripts/rvm-installer )
+echo '[[ -s "$HOME/.rvm/scripts/rvm" ]] &amp;&amp; . "$HOME/.rvm/scripts/rvm" # Load RVM function' &gt;&gt; ~/.bash_profile
+source ~/.bash_profile
+rvm install 1.9.2
+rvm use 1.9.2 --default
+</code></pre>
+
+<p>Next install vagrant</p>
+
+<pre><code>gem install vagrant
+</code></pre>
+
+<h3>Create A Home Base</h3>
+
+<p>It is likely you&rsquo;ll be creating several vagrant boxes (individual machines) as you move along, so it makes sense to keep them organized in one place.  Let&rsquo;s create that now.</p>
+
+<pre><code>mkdir ~/boxes
+</code></pre>
+
+<p>The <code>boxes</code> name given above is just my convention.  You may name that folder anything you like. We&rsquo;ll refer to this as your boxes directory.</p>
+
+<h3>Clone The Opscode Cookbooks</h3>
+
+<p>Opscode has a set of <a href="https://github.com/opscode/cookbooks">cookbooks</a> you&rsquo;ll use when writing chef scripts.  You&rsquo;ll want to pull these down and keep them within reach.</p>
+
+<pre><code>cd ~/boxes
+git clone https://github.com/opscode/cookbooks.git
+</code></pre>
+
+<p>This will create a directory <code>cookbooks</code> in your base directory containing all of Opscode&rsquo;s great cookbooks.  I suggest deleting the <code>.git</code> folder at the base of this dir and checking your cookbooks into your own source control repo.  As you add write cookbooks of your own, you may save them there.</p>
+
+<h3>Create A Project Directory</h3>
+
+<p>A project directory represents one (or more) VMs associated by a VagrantFile.  You&rsquo;ll learn more about the VagrantFile later in this article.  For now, just know that the VagrantFile acts as the configuration for your Vagrant project.  In the snippet below, we&rsquo;ll create a project directory called ProjectDirectory.  Choose a name that properly describes the box you&rsquo;re building.  For example, <code>WebServer</code> would be a good Project Directory name.</p>
+
+<pre><code>cd ~/boxes/
+mkdir ProjectDirectory
+cd ProjectDirectory
+</code></pre>
+
+<h3>Clone the Chef Repo</h3>
+
+<p>The Chef Repo is the basic structure required by Chef.  Your cookbooks and other important files will be kept here. In the example below, we&rsquo;ll be turning your Project Directory into a Chef Repo.  That&rsquo;s why we add the <code>.</code> at the end of the git clone command.</p>
+
+<pre><code>cd ~/boxes/ProjectDirectory
+git clone https://github.com/opscode/chef-repo.git .
+</code></pre>
+
+<p>If you run a <code>ls -al</code> command, you&rsquo;ll notice the following directory structure in your Project Directory now:</p>
+
+<pre><code>ls -al
+total 32
+drwxr-xr-x  13 timsabat  staff   442 Dec 13 12:36 .
+drwxr-xr-x   7 timsabat  staff   238 Dec 13 12:36 ..
+drwxr-xr-x  13 timsabat  staff   442 Dec 13 12:36 .git
+-rw-r--r--   1 timsabat  staff    18 Dec 13 12:36 .gitignore
+-rw-r--r--   1 timsabat  staff  3521 Dec 13 12:36 README.md
+-rw-r--r--   1 timsabat  staff  2171 Dec 13 12:36 Rakefile
+drwxr-xr-x   3 timsabat  staff   102 Dec 13 12:36 certificates
+-rw-r--r--   1 timsabat  staff   156 Dec 13 12:36 chefignore
+drwxr-xr-x   3 timsabat  staff   102 Dec 13 12:36 config
+drwxr-xr-x   3 timsabat  staff   102 Dec 13 12:36 cookbooks
+drwxr-xr-x   3 timsabat  staff   102 Dec 13 12:36 data_bags
+drwxr-xr-x   3 timsabat  staff   102 Dec 13 12:36 environments
+drwxr-xr-x   3 timsabat  staff   102 Dec 13 12:36 roles
+</code></pre>
+
+<p>Since we&rsquo;ll be creating our own git repository in this directory, let&rsquo;s delete the one provided by the previous clone command.</p>
+
+<pre><code>cd ~/boxes/ProjectDirectory
+sudo rm -r .git .gitignore
+</code></pre>
+
+<h3>Initialize your Vagrant environment</h3>
+
+<p>Vagrant depends on a file called VagrantFile for configuration information.  The following command creates that file.</p>
+
+<pre><code>vagrant init
+</code></pre>
+
+<p>The <code>ls</code> command will prove the <code>vagrant init</code> call did create your VagrantFile.</p>
+
+<p>Now we&rsquo;ll create a <code>knife.rb</code> file to control how chef&rsquo;s <code>knife</code> command interacts with your project.</p>
+
+<pre><code>cd ~/boxes/ProjectDirectory
+mkdir .chef
+touch .chef/knife.rb
+</code></pre>
+
+<p>What is <code>knife</code> you ask?  Opscode <a href="http://wiki.opscode.com/display/chef/Knife">describes</a> this way:</p>
+
+<blockquote><p>[knife] is used by administrators to interact with the Chef Server API and the local Chef repository. It provides the capability to manipulate nodes, cookbooks, roles, databags, environments, etc., and can also be used to provision cloud resources and to bootstrap systems.</p></blockquote>
+
+<p>The following values should be present in your <code>knife.rb</code> file.</p>
+
+<pre><code>current_dir = File.dirname(__FILE__)
+cache_options( :path =&gt; "#{ENV['HOME']}/.chef/checksums" )
+cookbook_path            ["#{current_dir}/../cookbooks", "#{current_dir}/../site-cookbooks"]
+</code></pre>
+
+<p>The options you&rsquo;ve set here tell chef where to create new cookbooks, and how/where to cache your erb templates.</p>
+
+<h3>Create your <code>vagrant_main</code> cookbook</h3>
+
+<p>In order for vagrant to configure your virtual machine, you must tell it which Chef cookbook to run first.  For convention&rsquo;s sake, we&rsquo;ll call this cookbook <code>vagrant_main</code>. If you were using hosted Chef instead of chef-solo (Vagrant&rsquo;s default mode), the would represent the &lsquo;run list&rsquo;.  If you don&rsquo;t know what that means, no big deal, you don&rsquo;t have to understand hosted chef to run Vagrant.</p>
+
+<p>We&rsquo;ll run the following knife command create your <code>vagrant_main</code> cookbook.</p>
+
+<pre><code>cd ~/boxes/ProjectDirectory
+knife cookbook create vagrant_main
+</code></pre>
+
+<p>Observe your handiwork :</p>
+
+<pre><code>cd ~/boxes/ProjectDirectory/cookbooks/vagrant_main
+ls -al
+</code></pre>
+
+<p>and you&rsquo;ll see output which looks like this:</p>
+
+<pre><code>-rw-r--r--   1 timsabat  staff   88 Dec 14 08:56 README.md
+drwxr-xr-x   2 timsabat  staff   68 Dec 14 08:56 attributes
+drwxr-xr-x   2 timsabat  staff   68 Dec 14 08:56 definitions
+drwxr-xr-x   3 timsabat  staff  102 Dec 14 08:56 files
+drwxr-xr-x   2 timsabat  staff   68 Dec 14 08:56 libraries
+-rw-r--r--   1 timsabat  staff  249 Dec 14 08:56 metadata.rb
+drwxr-xr-x   2 timsabat  staff   68 Dec 14 08:56 providers
+drwxr-xr-x   3 timsabat  staff  102 Dec 14 08:56 recipes
+drwxr-xr-x   2 timsabat  staff   68 Dec 14 08:56 resources
+drwxr-xr-x   3 timsabat  staff  102 Dec 14 08:56 templates
+</code></pre>
+
+<p>Each directory here has special meaning to Chef. You and read about what each means by checking out the <a href="http://wiki.opscode.com/display/chef/Cookbooks">Opscode cookbook documentation</a>.</p>
+
+<p>Finally, we&rsquo;ll tell the VagrantFile to run Chef against the <code>vagrant_main</code> cookbook we just created.  To do so, open the VagrantFile and change the values</p>
+
+<pre><code># config.vm.provision :chef_solo do |chef|
+#   chef.cookbooks_path = "cookbooks"
+#   chef.add_recipe "mysql"
+#   chef.add_role "web"
+#
+#   # You may also specify custom JSON attributes:
+#   chef.json = { :mysql_password =&gt; "foo" }
+# end
+</code></pre>
+
+<p>to</p>
+
+<pre><code>config.vm.provision :chef_solo do |chef|
+    chef.cookbooks_path = ["cookbooks", "site-cookbooks"]
+    chef.add_recipe "vagrant_main"
+end
+</code></pre>
+
+<h3>Conclusion</h3>
+
+<p>You&rsquo;ve set up a Vagrant Development Environment.  Now, write a recipe.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Timothy Sabat</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-12T13:59:00-08:00" pubdate data-updated="true">Dec 12<span>th</span>, 2011</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://tsabat.github.io/blog/2011/12/12/setting-up-a-vagrant-development-environment/" data-via="timsabat" data-counturl="http://tsabat.github.io/blog/2011/12/12/setting-up-a-vagrant-development-environment/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2011/12/11/installing-chef-client-and-chef-server/" title="Previous Post: Installing Chef Client and Chef Server">&laquo; Installing Chef Client and Chef Server</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2011/12/15/how-to-test-out-a-shared-vagrant-box/" title="Next Post: How to test out a shared vagrant box">How to test out a shared vagrant box &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/02/28/set-up-a-static-host-only-network-for-virtualbox/">Set Up A Static Host-Only Network For Virtualbox</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/28/how-to-manage-your-dotfiles-with-git/">How to manage your dotfiles with git</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/20/chef-recipe-to-upgrade-virtualbox-additions/">Chef Recipe To Upgrade Virtualbox Additions</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/19/command-line-resources/">Command-Line Resources</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/15/how-to-test-out-a-shared-vagrant-box/">How to test out a shared vagrant box</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/tsabat">@tsabat</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'tsabat',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Timothy Sabat -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

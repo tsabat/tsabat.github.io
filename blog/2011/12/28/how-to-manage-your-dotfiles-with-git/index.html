@@ -1,0 +1,296 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How to manage your dotfiles with git - Boom</title>
+  <meta name="author" content="Timothy Sabat">
+
+  
+  <meta name="description" content="Update The blog post below is over-simplified. You should follow the steps outlined by the vimcast guys. Objective Programs like vim, bash, and zsh &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://tsabat.github.io/blog/2011/12/28/how-to-manage-your-dotfiles-with-git">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Boom" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Boom</a></h1>
+  
+    <h2>Difficult takes a day, impossible takes a week.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:tsabat.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">How to Manage Your Dotfiles With Git</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-28T21:45:00-08:00" pubdate data-updated="true">Dec 28<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h3>Update</h3>
+
+<p>The blog post below is over-simplified.  You should follow the steps outlined by the <a href="http://vimcasts.org/episodes/synchronizing-plugins-with-git-submodules-and-pathogen/">vimcast</a> guys.</p>
+
+<h3>Objective</h3>
+
+<p>Programs like vim, bash, and zsh all use <code>dotfiles</code> for configuration.  You want to back them up in case of disaster.  Here&rsquo;s how I handle that using a <code>.dotfiles</code> directory and symlinks.</p>
+
+<h3>Where Do My <code>dotfiles</code> Live?</h3>
+
+<p>By default vim, bash, zsh and other programs store <code>dotfiles</code> in your home directory. You can view the dotfiles in your home directory like so:</p>
+
+<pre><code>cd
+ls -al
+</code></pre>
+
+<h3>Vim As An Example</h3>
+
+<p>In the following steps, you&rsquo;ll learn how to back up your Vim configuration to a directory named <code>.dotfiles</code>.</p>
+
+<p>To get started, create your <code>.dotfiles</code> directory.</p>
+
+<pre><code>cd
+mkdir -p .dotfiles/vim
+</code></pre>
+
+<p>Note: The <code>-p</code> option tells bash to create the directory recursively, building the entire path if it does not exist.</p>
+
+<p>Now, move your <code>.vim</code> and <code>.vimrc</code> files to your <code>.dotfiles</code> directory.</p>
+
+<pre><code>mv .vimrc .vim .dotfiles/vim
+</code></pre>
+
+<p>Finally, <a href="http://www.tech-recipes.com/rx/172/create_a_symbolic_link_in_unix_solaris_linux/">symlink</a> the files and folders you just moved back to their original location.</p>
+
+<pre><code>cd
+ln -s .dotfiles/vim/.vimrc .vimrc
+ln -s .dotfiles/vim/.vim .vim
+</code></pre>
+
+<h3>Back It Up</h3>
+
+<p>Remember to use whatever source control system you like to back up your <code>.dotfiles</code> directory.  I prefer git.</p>
+
+<pre><code>cd ~/.dotfiles
+git init
+git add .
+git commit -a -m 'My first dotfile commit'
+</code></pre>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Timothy Sabat</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-28T21:45:00-08:00" pubdate data-updated="true">Dec 28<span>th</span>, 2011</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/git/'>git</a>, <a class='category' href='/blog/categories/vim/'>vim</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://tsabat.github.io/blog/2011/12/28/how-to-manage-your-dotfiles-with-git/" data-via="timsabat" data-counturl="http://tsabat.github.io/blog/2011/12/28/how-to-manage-your-dotfiles-with-git/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2011/12/20/chef-recipe-to-upgrade-virtualbox-additions/" title="Previous Post: Chef Recipe To Upgrade Virtualbox Additions">&laquo; Chef Recipe To Upgrade Virtualbox Additions</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/02/28/set-up-a-static-host-only-network-for-virtualbox/" title="Next Post: Set Up A Static Host-Only Network For Virtualbox">Set Up A Static Host-Only Network For Virtualbox &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/02/28/set-up-a-static-host-only-network-for-virtualbox/">Set Up A Static Host-Only Network For Virtualbox</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/28/how-to-manage-your-dotfiles-with-git/">How to manage your dotfiles with git</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/20/chef-recipe-to-upgrade-virtualbox-additions/">Chef Recipe To Upgrade Virtualbox Additions</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/19/command-line-resources/">Command-Line Resources</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/15/how-to-test-out-a-shared-vagrant-box/">How to test out a shared vagrant box</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/tsabat">@tsabat</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'tsabat',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Timothy Sabat -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
