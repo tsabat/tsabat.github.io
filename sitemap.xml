@@ -46,12 +46,6 @@
     </url>
     <url>
         <loc>
-            http://tsabat.github.io/blog/2013/05/09/build-and-deploy-a-resque-server-using-rbenv/
-        </loc>
-        <lastmod>2013-05-09T21:02:14-05:00</lastmod>
-    </url>
-    <url>
-        <loc>
             http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/
         </loc>
         <lastmod>2013-06-30T17:13:12-05:00</lastmod>
