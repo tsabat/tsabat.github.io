@@ -4,7 +4,7 @@
   <title><![CDATA[Category: chef | Boom]]></title>
   <link href="http://tsabat.github.io/blog/categories/chef/atom.xml" rel="self"/>
   <link href="http://tsabat.github.io/"/>
-  <updated>2013-05-07T20:42:19-07:00</updated>
+  <updated>2013-06-30T17:13:32-05:00</updated>
   <id>http://tsabat.github.io/</id>
   <author>
     <name><![CDATA[Timothy Sabat]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Chef Recipe To Upgrade Virtualbox Additions]]></title>
     <link href="http://tsabat.github.io/blog/2011/12/20/chef-recipe-to-upgrade-virtualbox-additions/"/>
-    <updated>2011-12-20T23:01:00-08:00</updated>
+    <updated>2011-12-20T23:01:00-06:00</updated>
     <id>http://tsabat.github.io/blog/2011/12/20/chef-recipe-to-upgrade-virtualbox-additions</id>
     <content type="html"><![CDATA[<p>Every time the guys at VirtualBox update their software, you have to scramble to find resources to upgrade your virtualbox guest additions.  You also get the following annoying message.</p>
 

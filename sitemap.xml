@@ -2,58 +2,82 @@
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
         <loc>http://tsabat.github.io/blog/2011/12/08/vagrant-boxes-and-veewee/</loc>
-        <lastmod>2013-05-07T20:14:42-07:00</lastmod>
+        <lastmod>2013-05-07T22:14:42-05:00</lastmod>
     </url>
     <url>
         <loc>http://tsabat.github.io/blog/2011/12/11/installing-chef-client-and-chef-server/</loc>
-        <lastmod>2013-05-07T20:14:42-07:00</lastmod>
+        <lastmod>2013-05-07T22:14:42-05:00</lastmod>
     </url>
     <url>
         <loc>
             http://tsabat.github.io/blog/2011/12/12/setting-up-a-vagrant-development-environment/
         </loc>
-        <lastmod>2013-05-07T20:14:42-07:00</lastmod>
+        <lastmod>2013-05-07T22:14:42-05:00</lastmod>
     </url>
     <url>
         <loc>http://tsabat.github.io/blog/2011/12/15/how-to-test-out-a-shared-vagrant-box/</loc>
-        <lastmod>2013-05-07T20:14:42-07:00</lastmod>
+        <lastmod>2013-05-07T22:14:42-05:00</lastmod>
     </url>
     <url>
         <loc>http://tsabat.github.io/blog/2011/12/19/command-line-resources/</loc>
-        <lastmod>2013-05-07T20:14:42-07:00</lastmod>
+        <lastmod>2013-05-07T22:14:42-05:00</lastmod>
     </url>
     <url>
         <loc>
             http://tsabat.github.io/blog/2011/12/20/chef-recipe-to-upgrade-virtualbox-additions/
         </loc>
-        <lastmod>2013-05-07T20:14:42-07:00</lastmod>
+        <lastmod>2013-05-07T22:14:42-05:00</lastmod>
     </url>
     <url>
         <loc>http://tsabat.github.io/blog/2011/12/28/how-to-manage-your-dotfiles-with-git/</loc>
-        <lastmod>2013-05-07T20:14:42-07:00</lastmod>
+        <lastmod>2013-05-07T22:14:42-05:00</lastmod>
     </url>
     <url>
         <loc>
             http://tsabat.github.io/blog/2012/02/28/set-up-a-static-host-only-network-for-virtualbox/
         </loc>
-        <lastmod>2013-05-07T20:14:42-07:00</lastmod>
+        <lastmod>2013-05-07T22:14:42-05:00</lastmod>
     </url>
     <url>
         <loc>
             http://tsabat.github.io/blog/2013/05/07/installing-a-rapidssl-ssl-cert-on-an-aws-load-balancer/
         </loc>
-        <lastmod>2013-05-07T20:37:42-07:00</lastmod>
+        <lastmod>2013-05-07T22:37:42-05:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://tsabat.github.io/blog/2013/05/09/build-and-deploy-a-resque-server-using-rbenv/
+        </loc>
+        <lastmod>2013-05-09T21:02:14-05:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/
+        </loc>
+        <lastmod>2013-06-30T17:13:12-05:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2/
+        </loc>
+        <lastmod>2013-06-30T17:01:35-05:00</lastmod>
+    </url>
+    <url>
+        <loc>
+            http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3/
+        </loc>
+        <lastmod>2013-06-30T17:06:15-05:00</lastmod>
     </url>
     <url>
         <loc>http://tsabat.github.io/blog/archives/</loc>
-        <lastmod>2013-05-07T20:37:42-07:00</lastmod>
+        <lastmod>2013-06-30T17:13:12-05:00</lastmod>
     </url>
     <url>
         <loc>http://tsabat.github.io/</loc>
-        <lastmod>2013-05-07T20:37:42-07:00</lastmod>
+        <lastmod>2013-06-30T17:13:12-05:00</lastmod>
     </url>
     <url>
         <loc>http://tsabat.github.io/robots.txt</loc>
-        <lastmod>2013-05-07T20:07:40-07:00</lastmod>
+        <lastmod>2013-05-07T22:07:40-05:00</lastmod>
     </url>
 </urlset>

@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: aws | Boom]]></title>
+  <link href="http://tsabat.github.io/blog/categories/aws/atom.xml" rel="self"/>
+  <link href="http://tsabat.github.io/"/>
+  <updated>2013-06-30T17:13:32-05:00</updated>
+  <id>http://tsabat.github.io/</id>
+  <author>
+    <name><![CDATA[Timothy Sabat]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Painless AWS Autoscaling With EBS Snapshots And Capistrano Part 2]]></title>
+    <link href="http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2/"/>
+    <updated>2013-06-29T05:12:00-05:00</updated>
+    <id>http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2</id>
+    <content type="html"><![CDATA[<p>This is part two of a series designed to get your auto scaling environment running.  If you&rsquo;re just tuning in, check out <a href="/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano">part 1</a></p>
+
+<p>In the last part of this series, we did a bunch of manual key mashing to take our first snapshot.  This gives us the foundation we need to automate the the process.  In this part we will review the scripts required to make auto scaling work as expected.  Also, at the end of this post, I&rsquo;ll share the Chef recipe used to install all the scripts described here.</p>
+
+<ol>
+<li><code>snapshot.py</code> &ndash; a python script to snapshot a volume on deploy</li>
+<li><code>deploy:snapshot</code> &ndash; a capistrano task used to call <code>snapshot.py</code></li>
+<li><code>prep_instance.py</code> &ndash; a python script to mount a volume from the most recent snapshot and tag the instance.</li>
+<li><code>utils.rb</code> &ndash; a ruby script used during <code>cap deploy</code> to get instance dns names by tags.</li>
+<li><code>production.rb</code> &ndash; a the file used by capistrano multistage to get a list of servers.</li>
+<li><code>chef_userdata.sh</code> &ndash; a userdata script for bootstrapping chef.</li>
+<li><code>userdata.sh</code> &ndash; a userdata script that does not include chef bootstrapping.</li>
+<li><code>autoscaling</code> &ndash; a chef recipe used to set up all the scripts above.</li>
+</ol>
+
+
+<h3>Before you start</h3>
+
+<p>Let&rsquo;s review the tool set we&rsquo;ll be working with.  So far, we&rsquo;ve used bash and the <a href="http://alestic.com/2012/09/aws-command-line-tools">AWS Command Line Tools</a> and we&rsquo;ve done just fine.  We&rsquo;ll still use bash to stitch together our scripts, but in the next few steps we&rsquo;ll be using both python and ruby to accomplish our goals.  I find python to be more expressive and capable than bash when dealing with lots of variables that need to be type checked and have default values.  And ruby is a good fit for Capistrano.  So, we&rsquo;ll be using the <a href="https://pypi.python.org/pypi/boto">boto</a> libraries on the server side, and the <a href="http://aws.amazon.com/sdkforruby/">AWS SDK for Ruby</a> on the client (Capistrano) side.</p>
+
+<p>I use Chef to manage my dependencies, but if you&rsquo;re doing this by hand, the AMI on which these scripts will run must have the boto libraries pre-installed.  To do so, you can issue the following statements.</p>
+
+<p><code>bash
+sudo apt-get install python-setuptools
+sudo easy_install pip
+sudo pip install boto
+</code></p>
+
+<p>Also, boto expects on a <code>.boto</code> file to exist in the home directory for the user who executes these scripts.  We&rsquo;ll set the <code>BOTO_HOME</code> variable in our driver script later on in this post.</p>
+
+<p>The rest of this part will describe the file you need and what they do.</p>
+
+<h3>snapshot.py</h3>
+
+<p><a href="https://gist.github.com/tsabat/5890733">source</a></p>
+
+<p>The python script we review here will, given an instance ID, look up the volume attached to a device and take a snapshot of it.  It also tags the snapshot, so that future scripts can query the tags.  This script is called at deploy time so that the most recent code is always ready to mount on an auto scaling instance.</p>
+
+<p>The <code>parsed_args</code> method at the top of the script does a decent job of describing its default values.  You&rsquo;ll probably want to change the <code>--tag</code> argument to match your organization&rsquo;s needs.</p>
+
+<p>In the <code>main</code> method we do all our work.  The line</p>
+
+<p><code>python
+vols = conn.get_all_volumes(filters={'attachment.instance-id': args.instance_id})
+</code></p>
+
+<p>drives this little app.  We search for instance IDs that match that of the calling box.</p>
+
+<p>Then we iterate over the volumes, searching for the mount point (device) we set up earlier.</p>
+
+<p>Once found, we tell the script to create the snapshot and add the tag.</p>
+
+<p><code>python
+snap = code_volume.create_snapshot(snapshot_description(code_volume, args.instance_id))
+snap.add_tag('Name', args.tag)
+</code></p>
+
+<p>And that&rsquo;s it.  We&rsquo;ll use this script later on in our automation.</p>
+
+<h3>deploy:snapshot</h3>
+
+<p>The Capistrano task below calls <code>snapshot.py</code> on deployment.</p>
+
+<p><code>ruby
+ task :snapshot do
+  desc "Take a snapshot of the codepen volume for future autoscaling needs"
+  run "BOTO_CONFIG=/home/deploy/.boto /home/deploy/snapshot.py"
+ end
+</code></p>
+
+<p>Notice the presence of the <code>BOTO_CONFIG</code> environment variable.  The boto library provides <a href="https://code.google.com/p/boto/wiki/BotoConfig">documentation</a> for the appropriate keys to add to this INI-style file.</p>
+
+<p>Finally, remember to add the snapshot task to your <code>after_deploy</code> hooks in your Capistrano <code>deploy.rb</code>.</p>
+
+<p><code>ruby
+after :deploy, "deploy:snapshot"
+</code></p>
+
+<h2>prep_instance.py</h2>
+
+<p><a href="https://gist.github.com/tsabat/5890808">source</a></p>
+
+<p>The script we&rsquo;ll review here will, given a tag, search for the most recent snapshot, create a volume and mount it.  Furthermore, the script will apply tags to the instance itself.  We&rsquo;ll use these tags in our Capistrano ruby script.</p>
+
+<p>As with the other python script, there is a <code>parsed_args</code> method that defines the default values we&rsquo;ll need.  The <code>help</code> section of each describes each default.  The pair that need a bit more explaining are <code>device_key</code> and <code>device_value</code>.  If you recall in Step 4 of <a href="/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/">part one</a> of this series, device names can differ from AWS to your OS.  These two arguments compensate for this fact.</p>
+
+<p>Some interesting parts of the code include <code>wait_fstab</code> and <code>wait_volume</code>.  Both deal with the fact calls to create volumes, snapshots, and to attach devices are async.  So, we must poll the API, waiting for the status we expect.  For example, in the snippet below, our script sleeps for up to 60 seconds until the status we want appears.  If not, it throws an exception.</p>
+
+<p>```python
+def wait_volume(conn, args, volume, expected_status):</p>
+
+<pre><code>volume_status = 'waiting'
+sleep_seconds = 2
+sleep_intervals = 30
+for counter in range(sleep_intervals):
+    print 'elapsed: %s. status: %s.' % (sleep_seconds * counter, volume_status)
+    conn = ec2.connect_to_region(args.region)
+    volume_status = conn.get_all_volumes(volume_ids=[volume.id])[0].status
+    if volume_status == expected_status:
+        break
+    time.sleep(sleep_seconds)
+
+if volume_status != expected_status:
+    raise Exception('Unable to get %s status for volume %s' % (expected_status, volume.id))
+
+print 'volume now in %s state' % expected_status
+</code></pre>
+
+<p>```</p>
+
+<h2>utils.rb</h2>
+
+<p><a href="https://gist.github.com/tsabat/5890996">source</a></p>
+
+<p>This tool grabs all instance DNS names from aws.  We use this in the Capistrano multistage <code>production.rb</code> to get an array of dns names.  It is pretty self-explanatory.  Since this script will be distributed to your developers, it would probably be a good idea to lock the credentials down to read-only.  You will have to require this in your <code>deploy.rb</code> like so</p>
+
+<p><code>ruby
+equire './config/deploy/utils'
+</code></p>
+
+<p>Here&rsquo;s the file itself.  This makes deployment nice because it dynamically grabs EC2 Instances tagged with the Role and Environment you specify along with an <code>instance-state-name</code> of running.  This guarantees that you&rsquo;re pushing out to all the servers.</p>
+
+<p>```ruby
+require &lsquo;aws-sdk&rsquo;
+require &lsquo;awesome_print&rsquo;</p>
+
+<p>class AwsUtil</p>
+
+<p>  def ec2_object</p>
+
+<pre><code># deployer user, has read-only access
+AWS::EC2.new(
+  access_key_id: "&lt;your_key_here&gt;",
+  secret_access_key: "&lt;your_secret_here&gt;",
+  region: 'us-west-2'
+)
+</code></pre>
+
+<p>  end</p>
+
+<p>  def deployed_app_server_dns_names</p>
+
+<pre><code>ec2_object.instances.
+  filter('tag:Role', 'app').
+  filter('tag:Environment', 'production').
+  filter('instance-state-name', 'running').
+  map {|r| r.dns_name}
+</code></pre>
+
+<p>  end</p>
+
+<p>  def print_dns_names</p>
+
+<pre><code>ap deployed_app_server_dns_names
+</code></pre>
+
+<p>  end
+end
+```</p>
+
+<h2>production.rb</h2>
+
+<p><a href="https://gist.github.com/tsabat/5891043">source</a></p>
+
+<p>The <a href="https://github.com/capistrano/capistrano/wiki/2.x-Multistage-Extension">capistrano multistage</a> extension allows you to specify a file for each deployment target.  This script calls out to <code>utils.rb</code> to get dns names.</p>
+
+<p>```ruby
+set :branch, &ldquo;master&rdquo;</p>
+
+<h1>tagged:</h1>
+
+<h1>Role:app &amp;&amp; Environment:&lsquo;production&rsquo;</h1>
+
+<h1>filtered:</h1>
+
+<h1>instance-state-name:running</h1>
+
+<p>aws_servers = AwsUtil.new.deployed_app_server_dns_names</p>
+
+<p>role(:app) { aws_servers }
+role (:web) { aws_servers }
+role :db, aws_servers[0], primary: true
+```</p>
+
+<h2>chef_userdata.sh</h2>
+
+<p><a href="https://gist.github.com/tsabat/5891084">source</a></p>
+
+<p>This file will be passed to an autoscale launch config.</p>
+
+<p>The shebang line uses the <code>-ex</code> args to instruct bash to exit on error and to be very verbose when executing.  This is super-handy for debugging your user data script.</p>
+
+<p>```bash</p>
+
+<h1>!/bin/bash -ex</h1>
+
+<p>```</p>
+
+<p>The <code>exec</code> call redirects standard out and error do three different places.</p>
+
+<p><code>bash
+exec &gt; &gt;(tee /var/log/user-data.log|logger -t user-data -s 2&gt;/dev/console) 2&gt;&amp;1
+</code></p>
+
+<p>We slightly shorten the dns name and assign it to the <code>EC2_HOST</code> variable.</p>
+
+<p><code>bash
+EC2_HOSTNAME=`ec2metadata --public-hostname`
+EC2_HOST=`echo $EC2_HOSTNAME | cut -d. -f1`
+EC2_HOST=$EC2_HOST.`echo $EC2_HOSTNAME | cut -d. -f2`
+</code></p>
+
+<p>If you&rsquo;re not using chef, you can skip the following bits.  However, if you are using Chef you can boostrap the node this way: delete the <code>.pem</code>, set up a <code>first-boot.json</code> file, and pass the <code>EC2_HOST</code> variable to the <code>client.rb</code> file so your chef node name is useful.</p>
+
+<p>This script also assumes that the chef libraries are already installed and had been bootstrapped once before.</p>
+
+<p><code>bash
+if [ -a /etc/chef/client.pem ]; then
+  rm /etc/chef/client.pem
+else
+  echo "no pem to delete"
+fi
+echo '{"run_list":["role[app_server]","recipe[passenger]","recipe[autoscaling]"]}' &gt; /etc/chef/first-boot.json
+sed -i "s/node_name \".*\"/node_name \"app_$EC2_HOST\"/g" /etc/chef/client.rb
+sudo chef-client -j /etc/chef/first-boot.json
+</code></p>
+
+<p>And finally we call <code>userdata.sh</code></p>
+
+<h2>userdata.sh</h2>
+
+<p><a href="https://gist.github.com/tsabat/5891225">source</a></p>
+
+<p>Ultimately, this is the script that does all the work.  It mounts drives as described in Step 4 of <a href="/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/">part one</a> and then calls <code>prep_instance.py</code> from above.</p>
+
+<p>Although this script is mighty important, we&rsquo;ve covered all the details elsewhere.  Look it over and you&rsquo;ll recognize parts.</p>
+
+<h2>autoscaling chef recipe</h2>
+
+<p><a href="https://github.com/tsabat/autoscaling">source</a></p>
+
+<p>We&rsquo;ve reviewed a lot of scripts here in this document.  You may be wondering where to put them all.  Chef to the rescue!  Even if you&rsquo;re not using Chef, the <a href="https://github.com/tsabat/autoscaling/blob/master/recipes/default.rb">default recipe</a> from my recipe creates a great guide for placing these files where you want them.</p>
+
+<p>Here&rsquo;s an example from the <code>default.rb</code>.  In this case <code>/root/.boto</code> is where we&rsquo;re going to place the <a href="https://github.com/tsabat/autoscaling/blob/master/templates/default/boto.cfg.read_only.erb">boto.cfg.read_only.erb</a> file.</p>
+
+<p>The <code>owner</code>, <code>group</code> and <code>mode</code> functions should make sense to you.</p>
+
+<p><code>ruby
+template "/root/.boto" do
+  source "boto.cfg.read_only.erb"
+  owner "root"
+  group "root"
+  mode "0660"
+end
+</code></p>
+
+<p>This pattern is repeated throughout the document.</p>
+
+<h2>Fin</h2>
+
+<p>You&rsquo;ve reached the end of this part.  So far, you&rsquo;ve reviewed all the scripts you&rsquo;ll need to auto scale your environment.  In <a href="/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3">part 2</a> we&rsquo;ll look at some bash scripts for setting up your autoscaling rules, and review where all these scripts go.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Painless AWS Autoscaling With EBS Snapshots And Capistrano]]></title>
+    <link href="http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/"/>
+    <updated>2013-06-28T09:10:00-05:00</updated>
+    <id>http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano</id>
+    <content type="html"><![CDATA[<p>AWS AutoScaling is, on the surface, a simple concept: You get an AMI, set up some rules, and the Load Balancer takes care of the rest.  But the fact is, rolling AMIs for each deployment takes too long and would slows development down.  To get AutoScaling to fit into your development work flow in a transparent way takes more thought and planning.</p>
+
+<p>We recently rolled out this solution at CodePen that keeps our AMIs static and our application ready for scaling on EBS snapshots.  We can push code using Capistrano and let a few scripts distribute the ever-changing code base to our fleet of servers. I&rsquo;d like to share the steps required to make it work.  This series of posts will walk you through the steps required to build an auto-scaling infrastructure that stays out of your way.</p>
+
+<h3>Overview</h3>
+
+<p>The process can be summed up like this.</p>
+
+<ul>
+<li>Source is mounted on an EBS Volume.</li>
+<li>Snapshots are taken on deployment.</li>
+<li>When AWS scales up, new instances are started from latest snapshot.</li>
+<li>Instances are tagged with roles so that deployment scripts always push code to the right servers.</li>
+</ul>
+
+
+<h3>Before you start</h3>
+
+<p>This walk through assumes that you have a working Capistrano deployment going on AWS.  If you need some help with that, the guys at beanstalk have a <a href="http://guides.beanstalkapp.com/deployments/deploy-with-capistrano.html">great guide</a> for getting started.  We use the Capistrano <a href="https://github.com/capistrano/capistrano/wiki/2.x-Multistage-Extension">Multistage</a> to separate our our deployment environments.</p>
+
+<p>Also, it is a good idea to practice this whole setup on clone of your application environment.  Hopefully you&rsquo;re running your instance on an EBS-mounted root partition so you can simply create an AMI and run these steps in a safe environment.</p>
+
+<p>A functional AWS API Tools environment is a requirement as well, because this walk through will use them extensively. Although I do my development on a Mac, I prefer a linux environment for this type of work.  I keep an EBS-backed micro instance around for all my admin work and I found Eric Hammond&rsquo;s instructions for <a href="http://alestic.com/2012/09/aws-command-line-tools">installing aws command line tools</a> invaluable for this task.</p>
+
+<h3>Identifying Your Environments</h3>
+
+<p>You&rsquo;ll be working in two environments for this tutorial.</p>
+
+<ol>
+<li>Workstation Environment &ndash; this is where you have the AWS API Tools installed.  As stated above, a micro instance is nice for this</li>
+<li>Instance Environment &ndash; this is the instance where you deploy your code.  To follow along with this guide, the Instance Environment should have a working Rails environment in the Source directory.  In this case, that&rsquo;s <code>/home/deploy/codepen</code>.  Yours will obviously be elsewhere.</li>
+</ol>
+
+
+<p>I&rsquo;ll reference these two environments throughout this walk through.</p>
+
+<h2>Step 1: Create the EBS volume in AWS &ndash; Workstation Environment</h2>
+
+<p>In this section, we&rsquo;ll do the EBS legwork to get your code snapshot-ready.</p>
+
+<p>First, let&rsquo;s identify where your source lives.  Capistrano&rsquo;s <code>deploy.rb</code> defines your Source directory with the <code>:deploy_to</code> setting.  We&rsquo;ll refer to this as your Source from here on out.</p>
+
+<p>```ruby</p>
+
+<h1>Source</h1>
+
+<p>set :deploy_to, &ldquo;/home/deploy/codepen&rdquo;
+```</p>
+
+<p>You will mount your source directory on an EBS volume in a process similar to the instructions laid out in the Amazon article <a href="http://aws.amazon.com/articles/1663">Running MySQL on Amazon EC2 with EBS</a>.  This is a manual process now, but we&rsquo;ll automate this with a script later on in the article.</p>
+
+<p>Let&rsquo;s create a volume using the command line tools.</p>
+
+<p><code>bash
+VOL_ID=`ec2-create-volume --size 5 --availability-zone us-west-2c | awk '{print $2}'`
+echo $VOL_ID
+</code></p>
+
+<p>Let&rsquo;s poll for your volume status.  Repeat the command below until your echo returns <code>available</code>.  It is worth noting that AWS calls are asynchronous.  This means that even though you asked aws to create the volume, you can&rsquo;t use it until its <code>Status</code> becomes <code>available</code>.  That&rsquo;s what we&rsquo;re doing here.</p>
+
+<p><code>bash
+STATUS=`ec2-describe-volumes $VOL_ID | awk '{print $4}'`
+echo $VOL_ID
+</code></p>
+
+<h2>Step 2: Get the Instance ID &ndash; Instance Environment</h2>
+
+<p>You also need your Instance ID in order to mount this volume, so let&rsquo;s get that.  You will need to be logged into the machine you want to</p>
+
+<p><code>bash
+INSTANCE_ID=`ec2metadata --instance-id`
+echo $INSTANCE_ID
+</code></p>
+
+<p>I take for granted here that the <code>ec2metadata</code> command is available on Ubuntu Cloud Instances.  If you&rsquo;re using some other flavor of OS, you can do.</p>
+
+<p><code>bash
+INSTANCE_ID=`curl http://169.254.169.254/latest/meta-data/instance-id`
+</code></p>
+
+<p>Remember your $INSTANCE_ID for the next section.</p>
+
+<h2>Step 3: Mount the Volume &ndash; Workstation Environment</h2>
+
+<p>In the previous section you got your instance ID.  Let&rsquo;s put that in a variable on the workstation so you can easily access it.</p>
+
+<p><code>bash
+$INSTANCE_ID=&lt;your instance id here&gt;
+</code></p>
+
+<p>Now, let&rsquo;s ask AWS to mount this volume to your instance on device <code>/dev/sdf</code>.</p>
+
+<p><code>bash
+ec2-attach-volume $VOL_ID -i $INSTANCE_ID -d /dev/sdf
+</code></p>
+
+<h2>Step 4: Mount the File Systems to the Volume &ndash; Instance Environment</h2>
+
+<p>In the previous steps, we attached a volume to an instance.  Now we&rsquo;re on the instance and we&rsquo;ll associate that volume with the file system.</p>
+
+<p>First, verify that the device exists.</p>
+
+<p><code>bash
+ls /dev/xvdf
+</code></p>
+
+<p>It&rsquo;s worth noting that the device I asked aws to mount, <code>/dev/sdf</code>, is not the same as the device we&rsquo;re checking for.  Ubuntu uses the prefix <code>xvd</code> instead of <code>sd</code> to enumerate devices.  So, we search for <code>/dev/xvdf</code> to see that the <code>ec2-attach-volume</code> call worked.</p>
+
+<p>It can take some time for the device to mount.  During that time, the command above could return <code>No such file or directory</code>.  Just keep trying.</p>
+
+<p>Now create an xfs filesystem on the device.</p>
+
+<p>```bash
+sudo apt-get update
+sudo apt-get install -y xfsprogs</p>
+
+<p>grep -q xfs /proc/filesystems || sudo modprobe xfs
+sudo mkfs.xfs /dev/xvdf
+```</p>
+
+<p>In the call above, we asked apt to install the <code>xfsprogs</code> package, we test that xfs was installed.  Then we make the filesystem with the <code>mkfs.xfs</code> command.</p>
+
+<p>We&rsquo;ll create a temp at <code>/tmp/mount.sh</code> that you can <a href="https://gist.github.com/tsabat/5887028#file-mount-sh">grab from here</a></p>
+
+<p>Let&rsquo;s review what it does.  Lines 1 &ndash; 6 below echo our mounting instructions into fstab.  We want to mount our device <code>/dev/xvdf</code> to the file system at <code>/cp</code>.  Furthermore we want to mount the directory <code>/home/deploy/codpen/</code> to <code>/cp/codepen/</code>.  The second mount just acts like a symlink, pointing the home directory of the deploy user to the mounted filesystem.  The juicy bits are below.</p>
+
+<p>```bash
+grep &ldquo;codepen_fstab_setup&rdquo; /etc/fstab
+if [ $? -eq 1 ]; then</p>
+
+<pre><code>echo "# codepen_fstab_setup" | tee -a /etc/fstab
+echo "/dev/xvdf /cp xfs noatime 0 0" | tee -a /etc/fstab
+echo "/cp/codepen /home/deploy/codepen     none bind" | tee -a /etc/fstab
+</code></pre>
+
+<p>fi
+```</p>
+
+<p>Then, lines 1 &ndash; 12 below make the directories if they don&rsquo;t exist, and finally line 18 calls <code>mount -a</code>.  This tells the os to run the <code>mount</code> command against <code>/etc/fstab</code>, effectively running the configuration we just set up.</p>
+
+<p>```bash
+if [ $? -eq 0 ]; then</p>
+
+<pre><code>if [ ! -d /cp ]; then
+    mkdir -m 000 /cp
+fi
+
+if [ ! -d /home/deploy/codepen ]; then
+    mkdir -m 000 -p /home/deploy/codepen
+fi
+mount -a
+</code></pre>
+
+<p>else</p>
+
+<pre><code>echo FAIL
+</code></pre>
+
+<p>fi
+```</p>
+
+<p>If you have mounted <code>/dev/xvdf</code> and downloaded and executed <code>mount.sh</code> then you can verify that your devices and directories are mounted and linked by issuing the <code>mount</code> command.</p>
+
+<p>```bash
+mount</p>
+
+<p>&hellip;snip
+/dev/xvdf on /cp type xfs (rw,noatime)
+/cp/codepen on /home/deploy/codepen type none (rw,bind)
+```</p>
+
+<p>Now you have your source directory hosted on an EBS volume.</p>
+
+<h3>Step 5: Verify, Deploy and Snapshot &ndash; Workstation Environment</h3>
+
+<p>Now your code is ready for deployment.  Let&rsquo;s verify that everything is in place.</p>
+
+<p><code>bash
+cap deploy:check
+</code></p>
+
+<p>A hangup here could be permissions.  If your code was already deployed to the Source directory, the above steps should have simply linked your code in Source to the <code>/cp/codepen</code> directory.  If for some reason this did not happen, you can initialize your deployment now.</p>
+
+<p><code>bash
+cap deploy:setup
+cap deploy
+</code></p>
+
+<p>With a successful deployment, you&rsquo;re ready to snapshot.</p>
+
+<p><code>bash
+SNAPSHOT_ID=`ec2-create-snapshot -d "First snapshot" $VOL_ID | awk '{print $2}'`
+</code></p>
+
+<p>We&rsquo;re also going to tag the snapshot.  This step is important becasue during the launch of a new box, we&rsquo;ll search for the latest snapshot with this tag name and mount it as our Source directory.</p>
+
+<p><code>bash
+ec2-create-tag $SNAPSHOT_ID --tag Name="codepen-app"
+</code></p>
+
+<h2>Done, for now.</h2>
+
+<p>In <a href="/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2">part 2</a> of this series, we&rsquo;ll automate what we did here with a script.</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,508 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Painless AWS Autoscaling With EBS Snapshots And Capistrano - Boom</title>
+  <meta name="author" content="Timothy Sabat">
+
+  
+  <meta name="description" content="AWS AutoScaling is, on the surface, a simple concept: You get an AMI, set up some rules, and the Load Balancer takes care of the rest. But the fact &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Boom" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Boom</a></h1>
+  
+    <h2>Difficult takes a day, impossible takes a week.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:tsabat.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Painless AWS Autoscaling With EBS Snapshots and Capistrano</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-28T09:10:00-05:00" pubdate data-updated="true">Jun 28<span>th</span>, 2013</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>AWS AutoScaling is, on the surface, a simple concept: You get an AMI, set up some rules, and the Load Balancer takes care of the rest.  But the fact is, rolling AMIs for each deployment takes too long and would slows development down.  To get AutoScaling to fit into your development work flow in a transparent way takes more thought and planning.</p>
+
+<p>We recently rolled out this solution at CodePen that keeps our AMIs static and our application ready for scaling on EBS snapshots.  We can push code using Capistrano and let a few scripts distribute the ever-changing code base to our fleet of servers. I&rsquo;d like to share the steps required to make it work.  This series of posts will walk you through the steps required to build an auto-scaling infrastructure that stays out of your way.</p>
+
+<h3>Overview</h3>
+
+<p>The process can be summed up like this.</p>
+
+<ul>
+<li>Source is mounted on an EBS Volume.</li>
+<li>Snapshots are taken on deployment.</li>
+<li>When AWS scales up, new instances are started from latest snapshot.</li>
+<li>Instances are tagged with roles so that deployment scripts always push code to the right servers.</li>
+</ul>
+
+
+<h3>Before you start</h3>
+
+<p>This walk through assumes that you have a working Capistrano deployment going on AWS.  If you need some help with that, the guys at beanstalk have a <a href="http://guides.beanstalkapp.com/deployments/deploy-with-capistrano.html">great guide</a> for getting started.  We use the Capistrano <a href="https://github.com/capistrano/capistrano/wiki/2.x-Multistage-Extension">Multistage</a> to separate our our deployment environments.</p>
+
+<p>Also, it is a good idea to practice this whole setup on clone of your application environment.  Hopefully you&rsquo;re running your instance on an EBS-mounted root partition so you can simply create an AMI and run these steps in a safe environment.</p>
+
+<p>A functional AWS API Tools environment is a requirement as well, because this walk through will use them extensively. Although I do my development on a Mac, I prefer a linux environment for this type of work.  I keep an EBS-backed micro instance around for all my admin work and I found Eric Hammond&rsquo;s instructions for <a href="http://alestic.com/2012/09/aws-command-line-tools">installing aws command line tools</a> invaluable for this task.</p>
+
+<h3>Identifying Your Environments</h3>
+
+<p>You&rsquo;ll be working in two environments for this tutorial.</p>
+
+<ol>
+<li>Workstation Environment &ndash; this is where you have the AWS API Tools installed.  As stated above, a micro instance is nice for this</li>
+<li>Instance Environment &ndash; this is the instance where you deploy your code.  To follow along with this guide, the Instance Environment should have a working Rails environment in the Source directory.  In this case, that&rsquo;s <code>/home/deploy/codepen</code>.  Yours will obviously be elsewhere.</li>
+</ol>
+
+
+<p>I&rsquo;ll reference these two environments throughout this walk through.</p>
+
+<h2>Step 1: Create the EBS volume in AWS &ndash; Workstation Environment</h2>
+
+<p>In this section, we&rsquo;ll do the EBS legwork to get your code snapshot-ready.</p>
+
+<p>First, let&rsquo;s identify where your source lives.  Capistrano&rsquo;s <code>deploy.rb</code> defines your Source directory with the <code>:deploy_to</code> setting.  We&rsquo;ll refer to this as your Source from here on out.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># Source</span>
+</span><span class='line'><span class="n">set</span> <span class="ss">:deploy_to</span><span class="p">,</span> <span class="s2">&quot;/home/deploy/codepen&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You will mount your source directory on an EBS volume in a process similar to the instructions laid out in the Amazon article <a href="http://aws.amazon.com/articles/1663">Running MySQL on Amazon EC2 with EBS</a>.  This is a manual process now, but we&rsquo;ll automate this with a script later on in the article.</p>
+
+<p>Let&rsquo;s create a volume using the command line tools.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">VOL_ID</span><span class="o">=</span><span class="sb">`</span>ec2-create-volume --size 5 --availability-zone us-west-2c | awk <span class="s1">&#39;{print $2}&#39;</span><span class="sb">`</span>
+</span><span class='line'><span class="nb">echo</span> <span class="nv">$VOL_ID</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let&rsquo;s poll for your volume status.  Repeat the command below until your echo returns <code>available</code>.  It is worth noting that AWS calls are asynchronous.  This means that even though you asked aws to create the volume, you can&rsquo;t use it until its <code>Status</code> becomes <code>available</code>.  That&rsquo;s what we&rsquo;re doing here.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">STATUS</span><span class="o">=</span><span class="sb">`</span>ec2-describe-volumes <span class="nv">$VOL_ID</span> | awk <span class="s1">&#39;{print $4}&#39;</span><span class="sb">`</span>
+</span><span class='line'><span class="nb">echo</span> <span class="nv">$VOL_ID</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Step 2: Get the Instance ID &ndash; Instance Environment</h2>
+
+<p>You also need your Instance ID in order to mount this volume, so let&rsquo;s get that.  You will need to be logged into the machine you want to</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">INSTANCE_ID</span><span class="o">=</span><span class="sb">`</span>ec2metadata --instance-id<span class="sb">`</span>
+</span><span class='line'><span class="nb">echo</span> <span class="nv">$INSTANCE_ID</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I take for granted here that the <code>ec2metadata</code> command is available on Ubuntu Cloud Instances.  If you&rsquo;re using some other flavor of OS, you can do.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">INSTANCE_ID</span><span class="o">=</span><span class="sb">`</span>curl http://169.254.169.254/latest/meta-data/instance-id<span class="sb">`</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Remember your $INSTANCE_ID for the next section.</p>
+
+<h2>Step 3: Mount the Volume &ndash; Workstation Environment</h2>
+
+<p>In the previous section you got your instance ID.  Let&rsquo;s put that in a variable on the workstation so you can easily access it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$INSTANCE_ID</span><span class="o">=</span>&lt;your instance id here&gt;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, let&rsquo;s ask AWS to mount this volume to your instance on device <code>/dev/sdf</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>ec2-attach-volume <span class="nv">$VOL_ID</span> -i <span class="nv">$INSTANCE_ID</span> -d /dev/sdf
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Step 4: Mount the File Systems to the Volume &ndash; Instance Environment</h2>
+
+<p>In the previous steps, we attached a volume to an instance.  Now we&rsquo;re on the instance and we&rsquo;ll associate that volume with the file system.</p>
+
+<p>First, verify that the device exists.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>ls /dev/xvdf
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It&rsquo;s worth noting that the device I asked aws to mount, <code>/dev/sdf</code>, is not the same as the device we&rsquo;re checking for.  Ubuntu uses the prefix <code>xvd</code> instead of <code>sd</code> to enumerate devices.  So, we search for <code>/dev/xvdf</code> to see that the <code>ec2-attach-volume</code> call worked.</p>
+
+<p>It can take some time for the device to mount.  During that time, the command above could return <code>No such file or directory</code>.  Just keep trying.</p>
+
+<p>Now create an xfs filesystem on the device.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo apt-get update
+</span><span class='line'>sudo apt-get install -y xfsprogs
+</span><span class='line'>
+</span><span class='line'>grep -q xfs /proc/filesystems <span class="o">||</span> sudo modprobe xfs
+</span><span class='line'>sudo mkfs.xfs /dev/xvdf
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In the call above, we asked apt to install the <code>xfsprogs</code> package, we test that xfs was installed.  Then we make the filesystem with the <code>mkfs.xfs</code> command.</p>
+
+<p>We&rsquo;ll create a temp at <code>/tmp/mount.sh</code> that you can <a href="https://gist.github.com/tsabat/5887028#file-mount-sh">grab from here</a></p>
+
+<p>Let&rsquo;s review what it does.  Lines 1 &ndash; 6 below echo our mounting instructions into fstab.  We want to mount our device <code>/dev/xvdf</code> to the file system at <code>/cp</code>.  Furthermore we want to mount the directory <code>/home/deploy/codpen/</code> to <code>/cp/codepen/</code>.  The second mount just acts like a symlink, pointing the home directory of the deploy user to the mounted filesystem.  The juicy bits are below.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>grep <span class="s2">&quot;codepen_fstab_setup&quot;</span> /etc/fstab
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> -eq 1 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;# codepen_fstab_setup&quot;</span> | tee -a /etc/fstab
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;/dev/xvdf /cp xfs noatime 0 0&quot;</span> | tee -a /etc/fstab
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;/cp/codepen /home/deploy/codepen     none bind&quot;</span> | tee -a /etc/fstab
+</span><span class='line'><span class="k">fi</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then, lines 1 &ndash; 12 below make the directories if they don&rsquo;t exist, and finally line 18 calls <code>mount -a</code>.  This tells the os to run the <code>mount</code> command against <code>/etc/fstab</code>, effectively running the configuration we just set up.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> -eq 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">    if</span> <span class="o">[</span> ! -d /cp <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">        </span>mkdir -m 000 /cp
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="k"> </span>
+</span><span class='line'><span class="k">    if</span> <span class="o">[</span> ! -d /home/deploy/codepen <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">        </span>mkdir -m 000 -p /home/deploy/codepen
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="k">    </span>mount -a
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'><span class="k">    </span><span class="nb">echo </span>FAIL
+</span><span class='line'><span class="k">fi</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you have mounted <code>/dev/xvdf</code> and downloaded and executed <code>mount.sh</code> then you can verify that your devices and directories are mounted and linked by issuing the <code>mount</code> command.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>mount
+</span><span class='line'>
+</span><span class='line'>...snip
+</span><span class='line'>/dev/xvdf on /cp <span class="nb">type </span>xfs <span class="o">(</span>rw,noatime<span class="o">)</span>
+</span><span class='line'>/cp/codepen on /home/deploy/codepen <span class="nb">type </span>none <span class="o">(</span>rw,bind<span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you have your source directory hosted on an EBS volume.</p>
+
+<h3>Step 5: Verify, Deploy and Snapshot &ndash; Workstation Environment</h3>
+
+<p>Now your code is ready for deployment.  Let&rsquo;s verify that everything is in place.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>cap deploy:check
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>A hangup here could be permissions.  If your code was already deployed to the Source directory, the above steps should have simply linked your code in Source to the <code>/cp/codepen</code> directory.  If for some reason this did not happen, you can initialize your deployment now.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>cap deploy:setup
+</span><span class='line'>cap deploy
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With a successful deployment, you&rsquo;re ready to snapshot.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">SNAPSHOT_ID</span><span class="o">=</span><span class="sb">`</span>ec2-create-snapshot -d <span class="s2">&quot;First snapshot&quot;</span> <span class="nv">$VOL_ID</span> | awk <span class="s1">&#39;{print $2}&#39;</span><span class="sb">`</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We&rsquo;re also going to tag the snapshot.  This step is important becasue during the launch of a new box, we&rsquo;ll search for the latest snapshot with this tag name and mount it as our Source directory.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>ec2-create-tag <span class="nv">$SNAPSHOT_ID</span> --tag <span class="nv">Name</span><span class="o">=</span><span class="s2">&quot;codepen-app&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Done, for now.</h2>
+
+<p>In <a href="/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2">part 2</a> of this series, we&rsquo;ll automate what we did here with a script.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Timothy Sabat</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-28T09:10:00-05:00" pubdate data-updated="true">Jun 28<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/aws/'>aws</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/" data-via="timsabat" data-counturl="http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/05/09/build-and-deploy-a-resque-server-using-rbenv/" title="Previous Post: Build and Deploy a Resque Server Using rbenv">&laquo; Build and Deploy a Resque Server Using rbenv</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2/" title="Next Post: Painless AWS Autoscaling With EBS Snapshots And Capistrano Part 2">Painless AWS Autoscaling With EBS Snapshots And Capistrano Part 2 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3/">Painless AWS Autoscaling With EBS Snapshots And Capistrano part 3</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2/">Painless AWS Autoscaling With EBS Snapshots And Capistrano Part 2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/">Painless AWS Autoscaling With EBS Snapshots And Capistrano</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/05/09/build-and-deploy-a-resque-server-using-rbenv/">Build and Deploy a Resque Server Using rbenv</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/05/07/installing-a-rapidssl-ssl-cert-on-an-aws-load-balancer/">Installing a RapidSSL SSL cert on an AWS Load Balancer</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/tsabat">@tsabat</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'tsabat',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Timothy Sabat -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'boomboomboom';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/';
+        var disqus_url = 'http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Setting Up A Vagrant Development Environment - Boom</title>
+  <title>Boom</title>
   <meta name="author" content="Timothy Sabat">
 
   
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://tsabat.github.io/blog/2011/12/12/setting-up-a-vagrant-development-environment">
+  <link rel="canonical" href="http://tsabat.github.io/blog/page/2">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Boom" type="application/atom+xml">
@@ -63,12 +63,15 @@
 </nav>
   <div id="main">
     <div id="content">
-      <div>
-<article class="hentry" role="article">
+      <div class="blog-index">
   
+  
+  
+    <article>
+      
   <header>
     
-      <h1 class="entry-title">Setting Up a Vagrant Development Environment</h1>
+      <h1 class="entry-title"><a href="/blog/2011/12/12/setting-up-a-vagrant-development-environment/">Setting Up a Vagrant Development Environment</a></h1>
     
     
       <p class="meta">
@@ -86,14 +89,14 @@
 
 <time datetime="2011-12-12T13:59:00-06:00" pubdate data-updated="true">Dec 12<span>th</span>, 2011</time>
         
-         | <a href="#disqus_thread">Comments</a>
+         | <a href="/blog/2011/12/12/setting-up-a-vagrant-development-environment/#disqus_thread">Comments</a>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><h3>Install the Vagrant gem</h3>
+  <div class="entry-content"><h3>Install the Vagrant gem</h3>
 
 <p>You need vagrant installed for this process to work.  Vagrant depends on a version of ruby we&rsquo;ll set up using the <a href="http://beginrescueend.com/">Ruby Version Manager</a>, as shown below.  This can take a while, so be patient.  A quick note for mac developers: RVM installs Ruby from source.  In order to do so, you will need <a href="http://developer.apple.com/xcode/">Xcode</a> installed.  You can try using another gcc, but for one-stop goodness, install Xcode and move along.</p>
 
@@ -255,61 +258,232 @@ end
 
 <p>You&rsquo;ve set up a Vagrant Development Environment.  Now, write a recipe.</p>
 </div>
-
-
-  <footer>
-    <p class="meta">
-      
   
-
-<span class="byline author vcard">Posted by <span class="fn">Timothy Sabat</span></span>
-
-      
-
-
-
-
-
-
-
-
   
 
 
-<time datetime="2011-12-12T13:59:00-06:00" pubdate data-updated="true">Dec 12<span>th</span>, 2011</time>
+    </article>
+  
+  
+    <article>
       
-
-
-    </p>
+  <header>
     
-      <div class="sharing">
-  
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://tsabat.github.io/blog/2011/12/12/setting-up-a-vagrant-development-environment/" data-via="timsabat" data-counturl="http://tsabat.github.io/blog/2011/12/12/setting-up-a-vagrant-development-environment/" >Tweet</a>
-  
-  
-  
-</div>
-
+      <h1 class="entry-title"><a href="/blog/2011/12/11/installing-chef-client-and-chef-server/">Installing Chef Client and Chef Server</a></h1>
     
-    <p class="meta">
-      
-        <a class="basic-alignment left" href="/blog/2011/12/11/installing-chef-client-and-chef-server/" title="Previous Post: Installing Chef Client and Chef Server">&laquo; Installing Chef Client and Chef Server</a>
-      
-      
-        <a class="basic-alignment right" href="/blog/2011/12/15/how-to-test-out-a-shared-vagrant-box/" title="Next Post: How to test out a shared vagrant box">How to test out a shared vagrant box &raquo;</a>
-      
-    </p>
-  </footer>
-</article>
+    
+      <p class="meta">
+        
 
-  <section>
-    <h1>Comments</h1>
-    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-11T23:31:00-06:00" pubdate data-updated="true">Dec 11<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/12/11/installing-chef-client-and-chef-server/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>This guide will get you up and running with chef server and client on the same Windows 2008 Server.</h3>
+
+<p>The instructions outlined herin are a distillaiton of the <a href="http://wiki.opscode.com/display/chef/Fast+Start+Guide+for+Windows#FastStartGuideforWindows-Step1%253ACreateaHostedChefaccount">Chef Fast-Start Guide For Windows</a></p>
+
+<h3>Create a Hosted Chef Account</h3>
+
+<p>The instructions for <a href="http://wiki.opscode.com/display/chef/Fast+Start+Guide+for+Windows#FastStartGuideforWindows-Step1%253ACreateaHostedChefaccount">Creating a Hosted Chef Account</a> are easy to follow.  Do that and return to this guide.</p>
+
+<h3>Install Chef Client and Server</h3>
+
+<p>Run the <a href="http://opscode-full-stack.s3.amazonaws.com/windows/chef-client-0.10.4-6.msi">Chef Full Installer</a> and then verify your install with these commands.</p>
+
+<pre><code>chef-client --version
+tar --version
+</code></pre>
+
+<p>should produce</p>
+
+<pre><code>Chef: 0.10.4
+bsdtar 2.8.3 0 libarchive 2.8.3
+</code></pre>
+
+<h3>Install Git</h3>
+
+<p>Follow the instructions listed in the <a href="http://help.github.com/win-set-up-git/">github.com Windows Setup Guide</a>.</p>
+
+<p>Then verify</p>
+
+<pre><code>git --version
+</code></pre>
+
+<p>will produce</p>
+
+<pre><code>git version 1.7.6.mmsygit.0
+</code></pre>
+
+<p>or whatever the latest git version happens to be.</p>
+
+<h3>Prepare Your File System</h3>
+
+<p>Follow these instructions to set up your base Chef directory.  You&rsquo;ll use this when creating cookbooks.</p>
+
+<pre><code>cd %HOMEPATH%
+git clone git://github.com/opscode/chef-repo.git
+mkdir %HOMEPATH%\chef-repo\.chef
+</code></pre>
+
+<p>Move in your Chef keys you created in the first step of this guide titled Create A Hosted Account.  Edit the snippet below for your system settings:</p>
+
+<pre><code>move %HOMEPATH%\Downloads\knife.rb %HOMEPATH%\chef-repo\.chef
+move %HOMEPATH%\Downloads\tsabat.pem %HOMEPATH%\chef-repo\.chef
+move %HOMEPATH%\Downloads\fizbuzz-validator.pem %HOMEPATH%\chef-repo\.chef
+</code></pre>
+
+<p>Open WordPad to edit your knife.rb file.</p>
+
+<pre><code>Write %HOMEPATH%\chef-repo\.chef\knife.rb, 
+</code></pre>
+
+<p>MEPATH%\chef-repo
+In that file, change <code>cookbook_path ["#{current_dir}/../cookbooks"]</code> to <code>cookbook_path ["#{ENV['HOME']}/chef-repo/cookbooks"]</code></p>
+
+<h3>Verify Connection To Hosted Chef</h3>
+
+<p>Run the commands</p>
+
+<pre><code>cd %HOMEPATH%\chef-repo
+knife client list fizbuzz-validator
+</code></pre>
+
+<p><strong>TODO: Explain the validator&rsquo;s role in Chef</strong></p>
+
+<p>and you&rsquo;ll see your machine name listed there.</p>
+
+<h3>Configure The Workstation as Client</h3>
+
+<p>Run these commands</p>
+
+<pre><code>cd %HOMEPATH%\chef-repo
+knife configure client %HOMEPATH%\chef-repo
+</code></pre>
+
+<p>Then edit your client.rb</p>
+
+<pre><code>Write %HOMEPATH%\chef-repo
+</code></pre>
+
+<p>making it look like this, substituting fizbuzz for your own organization.</p>
+
+<pre><code>log_level        :info
+log_location     STDOUT
+chef_server_url  'https://api.opscode.com/organizations/fizbuzz'
+validation_client_name 'fizbuzz-validator'
+validation_key cd "#{ENV['HOME']}/chef-repo/.chef/fizbuzz-validator.pem"
+client_key "#{ENV['home']}/chef-repo/client.pem 
+</code></pre>
+
+<p>Run chef-client to register your client with the server.</p>
+
+<pre><code>chef-client -c %HOMEPATH%\chef-repo\client.rb
+</code></pre>
+
+<p>You&rsquo;ll see output which looks like this:</p>
+
+<pre><code>[Mon, 12 Dec 2011 00:48:03 -0800] INFO: *** Chef 0.10.4 ***
+[Mon, 12 Dec 2011 00:48:09 -0800] INFO: Client key C:\Users\Administrator/chef-r
+epo/client.pem is not present - registering
+[Mon, 12 Dec 2011 00:48:14 -0800] INFO: Run List is []
+[Mon, 12 Dec 2011 00:48:14 -0800] INFO: Run List expands to []
+[Mon, 12 Dec 2011 00:48:14 -0800] INFO: Starting Chef Run for WIN-JLR7H2GM3Q5
+[Mon, 12 Dec 2011 00:48:14 -0800] INFO: Loading cookbooks []
+[Mon, 12 Dec 2011 00:48:14 -0800] WARN: Node WIN-JLR7H2GM3Q5 has an empty run li
+st.
+[Mon, 12 Dec 2011 00:48:15 -0800] INFO: Chef Run complete in 1.484375 seconds
+[Mon, 12 Dec 2011 00:48:15 -0800] INFO: Running report handlers
+[Mon, 12 Dec 2011 00:48:15 -0800] INFO: Report handlers complete
+</code></pre>
+
+<p>Verify that your node was added</p>
+
+<pre><code>cd %HOMEPATH%\chef-repo
+knife client list
+</code></pre>
 </div>
-  </section>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2011/12/08/vagrant-boxes-and-veewee/">Vagrant Boxes and Veewee</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-08T22:02:00-06:00" pubdate data-updated="true">Dec 8<span>th</span>, 2011</time>
+        
+         | <a href="/blog/2011/12/08/vagrant-boxes-and-veewee/#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>11PM Thursday Night</h3>
+
+<p>I&rsquo;ve been trying to get Windows 2008 <a href="vagrantup.com">vagrant</a> box up and running and I&rsquo;ve had little luck.  According to instructions on <a href="http://www.ducea.com/2011/08/15/building-vagrant-boxes-with-veewee/">ducea.com</a>, the creation of a base windows box sould be a breeze using the <a href="https://github.com/jedi4ever/veewee">veewee</a> gem, but the postinstall.sh script placed in the base of the cygwin install had several errors.</p>
+
+<h3>10AM Friday Morning</h3>
+
+<p>It looks like cygwin was sporting an older version.</p>
+
+<p>TODO:</p>
+
+<ol>
+<li>Edit the <a href="https://github.com/jedi4ever/veewee/blob/master/templates/windows-2008R2-amd64/postinstall.sh">postinstall.sh</a> file to pull the latest cygwin files.</li>
+<li>Also, the ruby installer looks like it wants to pull the 32 bit install.  Is that right?</li>
+</ol>
 
 </div>
+  
+  
 
+
+    </article>
+  
+  <div class="pagination">
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/">Newer &rarr;</a>
+    
+  </div>
+</div>
 <aside class="sidebar">
   
     <section>
@@ -342,7 +516,7 @@ end
 <section>
   <h1>GitHub Repos</h1>
   <ul id="gh_repos">
-    <li class="loading">Status updating...</li>
+    <li class="loading">Status updating&#8230;</li>
   </ul>
   
   <a href="https://github.com/tsabat">@tsabat</a> on GitHub
@@ -375,7 +549,6 @@ end
   
 </aside>
 
-
     </div>
   </div>
   <footer role="contentinfo"><p>
@@ -390,10 +563,7 @@ end
       var disqus_shortname = 'boomboomboom';
       
         
-        // var disqus_developer = 1;
-        var disqus_identifier = 'http://tsabat.github.io/blog/2011/12/12/setting-up-a-vagrant-development-environment/';
-        var disqus_url = 'http://tsabat.github.io/blog/2011/12/12/setting-up-a-vagrant-development-environment/';
-        var disqus_script = 'embed.js';
+        var disqus_script = 'count.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

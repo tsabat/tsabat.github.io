@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>How to test out a shared vagrant box - Boom</title>
+  <title>Category: aws - Boom</title>
   <meta name="author" content="Timothy Sabat">
 
   
-  <meta name="description" content="Intro At some point, someone will offer to share a vagrant box with you. These are the steps required to get that box working. Create a Working &hellip;">
+  <meta name="description" content="Category: aws">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://tsabat.github.io/blog/2011/12/15/how-to-test-out-a-shared-vagrant-box">
+  <link rel="canonical" href="http://tsabat.github.ioblog/categories/aws">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Boom" type="application/atom+xml">
@@ -64,141 +64,50 @@
   <div id="main">
     <div id="content">
       <div>
-<article class="hentry" role="article">
+<article role="article">
   
   <header>
-    
-      <h1 class="entry-title">How to Test Out a Shared Vagrant Box</h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-12-15T12:17:00-06:00" pubdate data-updated="true">Dec 15<span>th</span>, 2011</time>
-        
-         | <a href="#disqus_thread">Comments</a>
-        
-      </p>
+    <h1 class="entry-title">Category: Aws</h1>
     
   </header>
-
-
-<div class="entry-content"><h3>Intro</h3>
-
-<p>At some point, someone will offer to share a vagrant box with you.  These are the steps required to get that box working.</p>
-
-<h3>Create a Working Folder</h3>
-
-<p>We&rsquo;ll need a place to house the <code>.box</code> file and a way to start it up, so create the directory and use the vagrant gem&rsquo;s <code>init</code> call, which will make a <code>VagrantFile</code> for you.</p>
-
-<pre><code>mkdir WorkingFolder
-cd WorkingFolder
-vagrant init
-</code></pre>
-
-<h3>Download the <code>.box</code> File</h3>
-
-<p>Put the <code>.box</code> file into your Working Directory.  For this exercise, we&rsquo;ll call it sharedBox.box.</p>
-
-<h3>Add The Box to Vagrant&rsquo;s Box Cache</h3>
-
-<p>The command below will import your .box file.</p>
-
-<pre><code>cd WorkingFolder
-vagrant box add shared_box sharedBox.box
-</code></pre>
-
-<p>Importing a box file will copy it your <code>~/.vagrant.d/boxes</code> folder.  To prove this, run the <code>ls</code> command.</p>
-
-<pre><code>ls ~/.vagrant.d/boxes
-yourshell$ shared_box
-</code></pre>
-
-<p>Notice that the <code>shared_box</code> argument to the <code>box add</code> command produces a <code>shared_box</code> file in your <code>~/.vagrant.d/boxes</code> directory.  Now, when dealing with this box in vagrant, you&rsquo;ll refer to it as <code>shared_box</code>.  So, you can safely delete the sharedBox.box file from your Working Directory.</p>
-
-<pre><code>rm sharedBox.box
-</code></pre>
-
-<h3>Edit the VagrantFile</h3>
-
-<p>In order start the vagrant box, you&rsquo;ll need to reference it in your <code>VagrantFile</code>.  Using your editor, change</p>
-
-<pre><code>config.vm.box = "base"
-</code></pre>
-
-<p>to</p>
-
-<pre><code>config.vm.box = "shared_box"
-</code></pre>
-
-<p>Now when you tell vagrant to start, you&rsquo;ll be referring to the <code>shared_box</code>.</p>
-
-<h3>All Done</h3>
-
-<p>With these steps in place, you&rsquo;re ready to start vagrant with the <code>vagrant_up</code> command.</p>
-</div>
-
-
-  <footer>
-    <p class="meta">
-      
   
-
-<span class="byline author vcard">Posted by <span class="fn">Timothy Sabat</span></span>
-
-      
-
-
-
-
-
+  <div id="blog-archives" class="category">
 
 
 
   
+  <h2>2013</h2>
 
-
-<time datetime="2011-12-15T12:17:00-06:00" pubdate data-updated="true">Dec 15<span>th</span>, 2011</time>
-      
-
-
-    </p>
-    
-      <div class="sharing">
+<article>
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://tsabat.github.io/blog/2011/12/15/how-to-test-out-a-shared-vagrant-box/" data-via="timsabat" data-counturl="http://tsabat.github.io/blog/2011/12/15/how-to-test-out-a-shared-vagrant-box/" >Tweet</a>
-  
-  
-  
-</div>
+<h1><a href="/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2/">Painless AWS Autoscaling With EBS Snapshots And Capistrano Part 2</a></h1>
+<time datetime="2013-06-29T05:12:00-05:00" pubdate><span class='month'>Jun</span> <span class='day'>29</span> <span class='year'>2013</span></time>
 
-    
-    <p class="meta">
-      
-        <a class="basic-alignment left" href="/blog/2011/12/12/setting-up-a-vagrant-development-environment/" title="Previous Post: Setting Up A Vagrant Development Environment">&laquo; Setting Up A Vagrant Development Environment</a>
-      
-      
-        <a class="basic-alignment right" href="/blog/2011/12/19/command-line-resources/" title="Next Post: Command-Line Resources">Command-Line Resources &raquo;</a>
-      
-    </p>
-  </footer>
+<footer>
+  <span class="categories">posted in <a class='category' href='/blog/categories/aws/'>aws</a></span>
+</footer>
+
+
 </article>
 
-  <section>
-    <h1>Comments</h1>
-    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+<article>
+  
+<h1><a href="/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/">Painless AWS Autoscaling With EBS Snapshots And Capistrano</a></h1>
+<time datetime="2013-06-28T09:10:00-05:00" pubdate><span class='month'>Jun</span> <span class='day'>28</span> <span class='year'>2013</span></time>
+
+<footer>
+  <span class="categories">posted in <a class='category' href='/blog/categories/aws/'>aws</a></span>
+</footer>
+
+
+</article>
+
 </div>
-  </section>
+
+  
+</article>
 
 </div>
 
@@ -282,10 +191,7 @@ yourshell$ shared_box
       var disqus_shortname = 'boomboomboom';
       
         
-        // var disqus_developer = 1;
-        var disqus_identifier = 'http://tsabat.github.io/blog/2011/12/15/how-to-test-out-a-shared-vagrant-box/';
-        var disqus_url = 'http://tsabat.github.io/blog/2011/12/15/how-to-test-out-a-shared-vagrant-box/';
-        var disqus_script = 'embed.js';
+        var disqus_script = 'count.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
