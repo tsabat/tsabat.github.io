@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Painless AWS Autoscaling With EBS Snapshots And Capistrano - Boom</title>
+  <title>Painless AWS Auto Scaling With EBS Snapshots And Capistrano - Boom</title>
   <meta name="author" content="Timothy Sabat">
 
   
-  <meta name="description" content="Painless AWS Autoscaling With EBS Snapshots and Capistrano Jun 28th, 2013 Choices to Make AWS auto scaling is, on the surface, a simple concept: You &hellip;">
+  <meta name="description" content="Painless AWS Auto Scaling With EBS Snapshots and Capistrano Jun 28th, 2013 A Three Part Series: Part 1 Part 2 Part 3 Choices to Make AWS (Amazon Web &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -35,6 +35,18 @@
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
   
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-42111323-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
 
 </head>
 
@@ -76,7 +88,7 @@
 
   <header>
   <div class="jumbotron">
-    Painless AWS Autoscaling With EBS Snapshots and Capistrano
+    Painless AWS Auto Scaling With EBS Snapshots and Capistrano
 	<h5>
 
 
@@ -94,17 +106,27 @@
 </header>
   <div class="row-fluid">
     <div class="span12">
-      <h3>Choices to Make</h3>
+      <div style="width: 250px; float: right; margin: 0 0 10px 10px; padding: 20px; border: 1px solid #ccc;">
+  <h4>A Three Part Series:</h4>
+  <ul>
+    <li><a href="http://boomboomboom.biz/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/">Part 1</a></li>
+    <li><a href="http://boomboomboom.biz/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2/">Part 2</a></li>
+    <li><a href="http://boomboomboom.biz/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3/">Part 3</a></li>
+  </ul>
+</div>
 
-<p>AWS auto scaling is, on the surface, a simple concept: You get an AMI, set up some rules, and the Load Balancer takes care of the rest.  However, the picture is more complicated than that.</p>
 
-<p>Some choices are worse than others: you could bake an AMI before you deploy, but that could add 10 minutes or more to each deployment.  Some are dangerous: you could create an AMI after each deploy, but you run the risk that an auto scale even happens before your AMIs are done.  Plus, you have a whole variety of AMIs deployed in at any given time.  Some are similar to what we propose in this tutorial: You could push your code to s3 on each deploy and have user-data scripts that pull it down on each auto scaling event.  However you slice it, to get auto scaling to fit into your development work flow in a transparent way takes careful thought and planning.</p>
+<h3>Choices to Make</h3>
 
-<p>We recently rolled out this solution at CodePen that keeps our AMIs static and our application ready for scaling on EBS snapshots.  We can push code using Capistrano and let a few scripts distribute the ever-changing code base to our fleet of servers. I&rsquo;d like to share the steps required to make it work.  This series of posts will walk you through the steps required to build an auto-scaling infrastructure that stays out of your way.</p>
+<p><a href="http://aws.amazon.com/">AWS</a> (Amazon Web Services) auto scaling is a simple concept on the surface: You get an AMI, set up rules, and the load balancer takes care of the rest. However, actually getting it done is more complicated.</p>
+
+<p>Some choices are worse than others: you could bake an AMI (Amazon Machine Image) before you deploy, but that could add 10 minutes or more to each deployment. Some are dangerous: you could create an AMI after each deploy, but you run the risk that an auto scale even happens before your AMIs are done. Plus, you have a whole variety of AMIs deployed in at any given time. Some are similar to what we propose in this tutorial: you could push your code to S3 on each deploy and have user-data scripts that pull it down on each auto scaling event.  However you slice it, to get auto scaling to fit into your development work flow in a transparent way takes careful thought and planning.</p>
+
+<p>We recently rolled out the following solution at <a href="http://codepen.io/">CodePen</a>. It keeps our AMIs static and our application ready for scaling on EBS (Elastic Block Store) snapshots. We can push code using <a href="https://github.com/capistrano/capistrano">Capistrano</a> and let a few scripts distribute the ever-changing code base to our fleet of servers. I&rsquo;d like to share the steps required to make it work.  This series of posts will walk you through the steps required to build an auto-scaling infrastructure that stays out of your way.</p>
 
 <h3>Overview</h3>
 
-<p>The process can be summed up like this.</p>
+<p>The process can be summed up like this:</p>
 
 <ul>
 <li>Source is mounted on an EBS Volume.</li>
@@ -116,19 +138,19 @@
 
 <h3>Before you start</h3>
 
-<p>This walk through assumes that you have a working Capistrano deployment going on AWS.  If you need some help with that, the guys at beanstalk have a <a href="http://guides.beanstalkapp.com/deployments/deploy-with-capistrano.html">great guide</a> for getting started.  We use the Capistrano <a href="https://github.com/capistrano/capistrano/wiki/2.x-Multistage-Extension">Multistage</a> to separate our our deployment environments.</p>
+<p>This walk through assumes that you have a working Capistrano deployment going on AWS. If you need some help with that, the guys at <a href="http://beanstalkapp.com/">Beanstalk</a> have a <a href="http://guides.beanstalkapp.com/deployments/deploy-with-capistrano.html">great guide</a> for getting started.  We use the Capistrano <a href="https://github.com/capistrano/capistrano/wiki/2.x-Multistage-Extension">Multistage</a> to separate our our deployment environments.</p>
 
-<p>Also, it is a good idea to practice this whole setup on clone of your application environment.  Hopefully you&rsquo;re running your instance on an EBS-mounted root partition so you can simply create an AMI and run these steps in a safe environment.</p>
+<p>Also, it is a good idea to practice this whole setup on a clone of your application environment. Hopefully you&rsquo;re running your instance on an EBS-mounted root partition so you can simply create an AMI and run these steps in a safe environment.</p>
 
-<p>A functional AWS API Tools environment is a requirement as well, because this walk through will use them extensively. Although I do my development on a Mac, I prefer a linux environment for this type of work.  I keep an EBS-backed micro instance around for all my admin work and I found Eric Hammond&rsquo;s instructions for <a href="http://alestic.com/2012/09/aws-command-line-tools">installing aws command line tools</a> invaluable for this task.</p>
+<p>A functional AWS API Tools environment is a requirement as well, because this walkthrough will use them extensively. Although I do my development on a Mac, I prefer a Linux environment for this type of work. I keep an EBS-backed micro instance around for all my admin work. I found Eric Hammond&rsquo;s instructions for <a href="http://alestic.com/2012/09/aws-command-line-tools">installing aws command line tools</a> invaluable for this task.</p>
 
 <h3>Identifying Your Environments</h3>
 
 <p>You&rsquo;ll be working in two environments for this tutorial.</p>
 
 <ol>
-<li>Workstation Environment &ndash; this is where you have the AWS API Tools installed.  As stated above, a micro instance is nice for this</li>
-<li>Instance Environment &ndash; this is the instance where you deploy your code.  To follow along with this guide, the Instance Environment should have a working Rails environment in the Source directory.  In this case, that&rsquo;s <code>/home/deploy/codepen</code>.  Yours will obviously be elsewhere.</li>
+<li>Workstation Environment &ndash; this is where you have the AWS API Tools installed. A micro instance is nice for this.</li>
+<li>Instance Environment &ndash; this is the instance where you deploy your code.  To follow along with this guide, the Instance Environment should have a working Rails environment in the Source directory.  In this case, that&rsquo;s <code>/home/deploy/codepen</code>. Yours will obviously be elsewhere.</li>
 </ol>
 
 
@@ -147,7 +169,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>You will mount your source directory on an EBS volume in a process similar to the instructions laid out in the Amazon article <a href="http://aws.amazon.com/articles/1663">Running MySQL on Amazon EC2 with EBS</a>.  This is a manual process now, but we&rsquo;ll automate this with a script later on in the article.</p>
+<p>You will mount your source directory on an EBS volume in a process similar to the instructions laid out in the Amazon article <a href="http://aws.amazon.com/articles/1663">Running MySQL on Amazon EC2 with EBS</a>. This is a manual process for now, but we&rsquo;ll automate this with a script later on in the article.</p>
 
 <p>Let&rsquo;s create a volume using the command line tools.</p>
 
@@ -158,7 +180,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Let&rsquo;s poll for your volume status.  Repeat the command below until your echo returns <code>available</code>.  It is worth noting that AWS calls are asynchronous.  This means that even though you asked aws to create the volume, you can&rsquo;t use it until its <code>Status</code> becomes <code>available</code>.  That&rsquo;s what we&rsquo;re doing here.</p>
+<p>Now let&rsquo;s poll for your volume status. Repeat the command below until your echo returns <code>available</code>. It is worth noting that AWS calls are asynchronous. This means that even though you asked AWS to create the volume, you can&rsquo;t use it until its <code>Status</code> becomes <code>available</code>. That&rsquo;s what we&rsquo;re doing here.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -169,7 +191,7 @@
 
 <h2>Step 2: Get the Instance ID &ndash; Instance Environment</h2>
 
-<p>You also need your Instance ID in order to mount this volume, so let&rsquo;s get that.  You will need to be logged into the machine you want to</p>
+<p>You also need your Instance ID in order to mount this volume, so let&rsquo;s get that. You will need to be logged into the machine.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -178,18 +200,18 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>I take for granted here that the <code>ec2metadata</code> command is available on Ubuntu Cloud Instances.  If you&rsquo;re using some other flavor of OS, you can do.</p>
+<p>I take for granted here that the <code>ec2metadata</code> command is available on Ubuntu Cloud Instances. If you&rsquo;re using some other flavor of OS, you can do:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">INSTANCE_ID</span><span class="o">=</span><span class="sb">`</span>curl http://169.254.169.254/latest/meta-data/instance-id<span class="sb">`</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Remember your $INSTANCE_ID for the next section.</p>
+<p>Remember your <code>$INSTANCE_ID</code>for the next section.</p>
 
 <h2>Step 3: Mount the Volume &ndash; Workstation Environment</h2>
 
-<p>In the previous section you got your instance ID.  Let&rsquo;s put that in a variable on the workstation so you can easily access it.</p>
+<p>In the previous section you got your instance ID. Let&rsquo;s put that in a variable on the workstation so you can easily access it.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$INSTANCE_ID</span><span class="o">=</span>&lt;your instance id here&gt;
@@ -205,7 +227,7 @@
 
 <h2>Step 4: Mount the File Systems to the Volume &ndash; Instance Environment</h2>
 
-<p>In the previous steps, we attached a volume to an instance.  Now we&rsquo;re on the instance and we&rsquo;ll associate that volume with the file system.</p>
+<p>In the previous steps, we attached a volume to an instance. Now we&rsquo;re on the instance and we&rsquo;ll associate that volume with the file system.</p>
 
 <p>First, verify that the device exists.</p>
 
@@ -214,9 +236,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>It&rsquo;s worth noting that the device I asked aws to mount, <code>/dev/sdf</code>, is not the same as the device we&rsquo;re checking for.  Ubuntu uses the prefix <code>xvd</code> instead of <code>sd</code> to enumerate devices.  So, we search for <code>/dev/xvdf</code> to see that the <code>ec2-attach-volume</code> call worked.</p>
+<p>It&rsquo;s worth noting that the device I asked AWS to mount, <code>/dev/sdf</code>, is not the same as the device we&rsquo;re checking for.  Ubuntu uses the prefix <code>xvd</code> instead of <code>sd</code> to enumerate devices.  So, we search for <code>/dev/xvdf</code> to see that the <code>ec2-attach-volume</code> call worked.</p>
 
-<p>It can take some time for the device to mount.  During that time, the command above could return <code>No such file or directory</code>.  Just keep trying.</p>
+<p>It can take some time for the device to mount.  During that time, the command above could return <code>No such file or directory</code>. Just keep trying.</p>
 
 <p>Now create an xfs filesystem on the device.</p>
 
@@ -237,7 +259,7 @@
 
 <p>We&rsquo;ll create a temp at <code>/tmp/mount.sh</code> that you can <a href="https://gist.github.com/tsabat/5887028#file-mount-sh">grab from here</a></p>
 
-<p>Let&rsquo;s review what it does.  Lines 1 &ndash; 6 below echo our mounting instructions into fstab.  We want to mount our device <code>/dev/xvdf</code> to the file system at <code>/cp</code>.  Furthermore we want to mount the directory <code>/home/deploy/codpen/</code> to <code>/cp/codepen/</code>.  The second mount just acts like a symlink, pointing the home directory of the deploy user to the mounted filesystem.  The juicy bits are below.</p>
+<p>Let&rsquo;s review what it does.  Lines 1 &ndash; 6 below echo our mounting instructions into fstab. We want to mount our device <code>/dev/xvdf</code> to the file system at <code>/cp</code>.  Furthermore we want to mount the directory <code>/home/deploy/codpen/</code> to <code>/cp/codepen/</code>. The second mount just acts like a symlink, pointing the home directory of the deploy user to the mounted filesystem. The juicy bits are below.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -254,7 +276,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Then, lines 1 &ndash; 12 below make the directories if they don&rsquo;t exist, and finally line 18 calls <code>mount -a</code>.  This tells the os to run the <code>mount</code> command against <code>/etc/fstab</code>, effectively running the configuration we just set up.</p>
+<p>Then, lines 1 &ndash; 12 below make the directories if they don&rsquo;t exist, and finally line 18 calls <code>mount -a</code>.  This tells the OS to run the <code>mount</code> command against <code>/etc/fstab</code>, effectively running the configuration we just set up.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -302,14 +324,14 @@
 
 <h2>Step 5: Verify, Deploy and Snapshot &ndash; Workstation Environment</h2>
 
-<p>Now your code is ready for deployment.  Let&rsquo;s verify that everything is in place.</p>
+<p>Now your code is ready for deployment. Let&rsquo;s verify that everything is in place.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'>cap deploy:check
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>A hangup here could be permissions.  If your code was already deployed to the Source directory, the above steps should have simply linked your code in Source to the <code>/cp/codepen</code> directory.  If for some reason this did not happen, you can initialize your deployment now.</p>
+<p>A hangup here could be permissions. If your code was already deployed to the Source directory, the above steps should have simply linked your code in Source to the <code>/cp/codepen</code> directory.  If for some reason this did not happen, you can initialize your deployment now.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -353,7 +375,11 @@
 
 
 
+  <a href="/blog/categories/autoscaling/"><span class="badge">autoscaling</span></a>
+
   <a href="/blog/categories/aws/"><span class="badge">aws</span></a>
+
+  <a href="/blog/categories/capistrano/"><span class="badge">capistrano</span></a>
 
 
 
