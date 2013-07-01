@@ -4,7 +4,7 @@
   <title><![CDATA[Boom]]></title>
   <link href="http://tsabat.github.io/atom.xml" rel="self"/>
   <link href="http://tsabat.github.io/"/>
-  <updated>2013-06-30T23:33:43-05:00</updated>
+  <updated>2013-06-30T23:37:06-05:00</updated>
   <id>http://tsabat.github.io/</id>
   <author>
     <name><![CDATA[Timothy Sabat]]></name>
@@ -18,7 +18,7 @@
     <link href="http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3/"/>
     <updated>2013-06-29T09:47:00-05:00</updated>
     <id>http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3</id>
-    <content type="html"><![CDATA[<p>This is part two of a series designed to get your auto scaling environment running.  If you&rsquo;re just tuning in, check out <a href="http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano">part 1</a> and <a href="http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2">part 2</a></p>
+    <content type="html"><![CDATA[<p>This is part two of a series designed to get your auto scaling environment running.  If you&rsquo;re just tuning in, check out <a href="http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano">part 1</a> and <a href="http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2">part 2</a></p>
 
 <p>In the last part of this series, we reviewed a bunch of scripts used to deal with properly snapshotting and mounting volumes.  In this part we&rsquo;ll get our auto scaling system set up in aws.  Then we&rsquo;ll give a high-level run-through of what you need to do to complete your setup.  In this part we&rsquo;ll review these scripts:</p>
 
@@ -44,7 +44,7 @@
 
 <p><a href="https://gist.github.com/tsabat/5891540">aws_create_lb.sh</a> &ndash; It is pretty obvious what&rsquo;s happening in this script.  Be sure to change the <code>CERT_ID</code> variable and the <code>LB_NAME</code> to something that makes sense for you.</p>
 
-<p><a href="https://gist.github.com/tsabat/5891427">aws_create_launch_config.sh</a> &ndash; Here we&rsquo;re building our launch config.  Be aware that the <code>USER_DATA_FILE</code> here is the one we created in <a href="http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2">part 2</a> of this walkthrough.  Find the source <a href="https://gist.github.com/tsabat/5891084">here</a>.</p>
+<p><a href="https://gist.github.com/tsabat/5891427">aws_create_launch_config.sh</a> &ndash; Here we&rsquo;re building our launch config.  Be aware that the <code>USER_DATA_FILE</code> here is the one we created in <a href="http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2">part 2</a> of this walkthrough.  Find the source <a href="https://gist.github.com/tsabat/5891084">here</a>.</p>
 
 <p><a href="https://gist.github.com/tsabat/5891536">aws_create_autoscaling_group</a> &ndash; Again, boilerplate stuff.</p>
 
@@ -82,7 +82,7 @@
 <li>Bootstrap your node with Chef, if you&rsquo;re using it</li>
 <li>Create an AMI to work with</li>
 <li>Launch a fresh AMI to work through your process</li>
-<li>Manually set up your mount and volume for the first time, and snaphshot it, as described in <a href="http://tsabat.github.io/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano">part 1</a>.</li>
+<li>Manually set up your mount and volume for the first time, and snaphshot it, as described in <a href="http://tsabat.github.io/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano">part 1</a>.</li>
 <li>Put <code>snapshot.py</code> and <code>prep_instance.py</code> onto your production AMI.</li>
 <li>Add the <code>deploy:snapshot</code> task into your <code>deploy.rb</code>.</li>
 <li>Put <code>utils.rb</code> into your <code>config</code> dir in your rails setup.</li>
@@ -103,7 +103,7 @@
     <link href="http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2/"/>
     <updated>2013-06-29T05:12:00-05:00</updated>
     <id>http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2</id>
-    <content type="html"><![CDATA[<p>This is part two of a series designed to get your auto scaling environment running.  If you&rsquo;re just tuning in, check out <a href="http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano">part 1</a></p>
+    <content type="html"><![CDATA[<p>This is part two of a series designed to get your auto scaling environment running.  If you&rsquo;re just tuning in, check out <a href="http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano">part 1</a></p>
 
 <p>In the last part of this series, we did a bunch of manual key mashing to take our first snapshot.  This gives us the foundation we need to automate the the process.  In this part we will review the scripts required to make auto scaling work as expected.  Also, at the end of this post, I&rsquo;ll share the Chef recipe used to install all the scripts described here.</p>
 
@@ -429,7 +429,7 @@
 
 <h2>Fin</h2>
 
-<p>You&rsquo;ve reached the end of this part.  So far, you&rsquo;ve reviewed all the scripts you&rsquo;ll need to auto scale your environment.  In <a href="http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3">part 2</a> we&rsquo;ll look at some bash scripts for setting up your autoscaling rules, and review where all these scripts go.</p>
+<p>You&rsquo;ve reached the end of this part.  So far, you&rsquo;ve reviewed all the scripts you&rsquo;ll need to auto scale your environment.  In <a href="http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3">part 2</a> we&rsquo;ll look at some bash scripts for setting up your autoscaling rules, and review where all these scripts go.</p>
 ]]></content>
   </entry>
   
