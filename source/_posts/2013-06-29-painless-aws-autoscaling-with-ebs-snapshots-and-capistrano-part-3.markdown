@@ -6,13 +6,20 @@ comments: true
 categories: aws autoscaling capistrano
 ---
 
-##Part 3
+<div style="width: 250px; float: right; margin: 0 0 10px 10px; padding: 20px; border: 1px solid #ccc;">
+  <h4>A Three Part Series:</h4>
+  <ul>
+    <li><a href="http://boomboomboom.biz/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/">Part 1</a></li>
+    <li><a href="http://boomboomboom.biz/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2/">Part 2</a></li>
+    <li><a href="http://boomboomboom.biz/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3/">Part 3</a></li>
+  </ul>
+</div>
 
-This is part three of a series designed to get your auto scaling environment running.  If you're just tuning in, check out [part 1](/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano) and [part 2](/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2)
+This is part three of a series designed to get your auto scaling environment running.
 
 ##Review
 
-In the last part of this series, we reviewed a bunch of scripts used to deal with properly snapshotting and mounting volumes.  In this part we'll get our auto scaling system set up in aws.  Then we'll give a high-level run-through of everything I covered in parts 1 and 2.
+In the last part of this series, we reviewed a bunch of scripts used to deal with properly snapshotting and mounting volumes. In this part we'll get our auto scaling system set up in AWS. Then we'll give a high-level run-through of what you need to do to complete your setup. In this part we'll review these scripts:
 
 ##The Scripts
 
@@ -25,13 +32,13 @@ Finally, I'll tie together the whole process, referring to scripts as I go.
 
 ##Before you start
 
-The scripts that we're about to execute will work out of the box, but will have some very codepen-specific stuff listed in them.  You'll probably want to do your own naming of policies, lbs, etc.
+The scripts that we're about to execute will work out of the box, but will have some very codepen-specific stuff listed in them. You'll probably want to do your own naming of policies, lbs, etc.
 
-Also, I'm not going to go into great detail about the AWS creation scripts.  The most useful article I found on the topic is on the [cardinal path](http://www.cardinalpath.com/autoscaling-your-website-with-amazon-web-services-part-2/) blog.  I followed his instructions until I understood the process well enough to build my own.
+Also, I'm not going to go into great detail about the AWS creation scripts. The most useful article I found on the topic is on the [cardinal path](http://www.cardinalpath.com/autoscaling-your-website-with-amazon-web-services-part-2/) blog.  I followed his instructions until I understood the process well enough to build my own.
 
 ##AWS Autoscaling Creation Scripts
 
-I wrote bash scripts to automate the creation of my autoscaling setup.  Let's review each in turn below.
+I wrote bash scripts to automate the creation of my autoscaling setup. Let's review each in turn below.
 
 [aws_create_lb.sh](https://gist.github.com/tsabat/5891540) - It is pretty obvious what's happening in this script.  Be sure to change the `CERT_ID` variable and the `LB_NAME` to something that makes sense for you.
 
@@ -54,6 +61,7 @@ SCALE_DOWN=$(add_policy)
 ```
 
 In this case, `add_policy` is a function that we call twice.
+
 
 ##High Level Overview
 
