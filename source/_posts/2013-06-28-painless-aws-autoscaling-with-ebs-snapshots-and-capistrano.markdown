@@ -3,7 +3,7 @@ layout: post
 title: "Painless AWS Autoscaling With EBS Snapshots And Capistrano"
 date: 2013-06-28 09:10
 comments: true
-categories: aws 
+categories: aws capistrano autoscaling
 ---
 
 ###Choices to Make

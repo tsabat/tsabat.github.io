@@ -3,7 +3,7 @@ layout: post
 title: "Painless AWS Autoscaling With EBS Snapshots And Capistrano part 3"
 date: 2013-06-29 09:47
 comments: true
-categories: 
+categories: aws autoscaling capistrano
 ---
 
 ##Part 3
@@ -12,7 +12,7 @@ This is part three of a series designed to get your auto scaling environment run
 
 ##Review
 
-In the last part of this series, we reviewed a bunch of scripts used to deal with properly snapshotting and mounting volumes.  In this part we'll get our auto scaling system set up in aws.  Then we'll give a high-level run-through of what you need to do to complete your setup.  In this part we'll review these scripts:
+In the last part of this series, we reviewed a bunch of scripts used to deal with properly snapshotting and mounting volumes.  In this part we'll get our auto scaling system set up in aws.  Then we'll give a high-level run-through of everything I covered in parts 1 and 2.
 
 ##The Scripts
 
