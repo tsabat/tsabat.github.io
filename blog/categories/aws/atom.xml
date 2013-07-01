@@ -4,7 +4,7 @@
   <title><![CDATA[Category: aws | Boom]]></title>
   <link href="http://tsabat.github.io/blog/categories/aws/atom.xml" rel="self"/>
   <link href="http://tsabat.github.io/"/>
-  <updated>2013-06-30T17:21:40-05:00</updated>
+  <updated>2013-06-30T21:26:00-05:00</updated>
   <id>http://tsabat.github.io/</id>
   <author>
     <name><![CDATA[Timothy Sabat]]></name>
@@ -287,7 +287,7 @@ end
     <link href="http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/"/>
     <updated>2013-06-28T09:10:00-05:00</updated>
     <id>http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano</id>
-    <content type="html"><![CDATA[<p>AWS AutoScaling is, on the surface, a simple concept: You get an AMI, set up some rules, and the Load Balancer takes care of the rest.  But the fact is, rolling AMIs for each deployment takes too long and would slows development down.  To get AutoScaling to fit into your development work flow in a transparent way takes more thought and planning.</p>
+    <content type="html"><![CDATA[<p>AWS AutoScaling is, on the surface, a simple concept: You get an AMI, set up some rules, and the Load Balancer takes care of the rest.  But the fact is, rolling AMIs for each deployment takes too long and slows development down.  To get AutoScaling to fit into your development work flow in a transparent way takes careful thought and planning.</p>
 
 <p>We recently rolled out this solution at CodePen that keeps our AMIs static and our application ready for scaling on EBS snapshots.  We can push code using Capistrano and let a few scripts distribute the ever-changing code base to our fleet of servers. I&rsquo;d like to share the steps required to make it work.  This series of posts will walk you through the steps required to build an auto-scaling infrastructure that stays out of your way.</p>
 
