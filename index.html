@@ -9,7 +9,7 @@
   <meta name="author" content="Timothy Sabat">
 
   
-  <meta name="description" content="Boom&#8230; Timothy Sabat. I write codes. Jun 29th, 2013 Comments Painless AWS Autoscaling With EBS Snapshots And Capistrano part 3 This is part &hellip;">
+  <meta name="description" content="Boom&#8230; Timothy Sabat. I write codes. Jun 29th, 2013 Comments Painless AWS Autoscaling With EBS Snapshots And Capistrano part 3 Part 3 This is &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -113,9 +113,15 @@
     </div>
     <div class="span10">
       <h1 class="link"><a href="/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3/">Painless AWS Autoscaling With EBS Snapshots And Capistrano part 3</a></h1>
-      <p>This is part three of a series designed to get your auto scaling environment running.  If you&rsquo;re just tuning in, check out <a href="/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano">part 1</a> and <a href="/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2">part 2</a></p>
+      <h2>Part 3</h2>
+
+<p>This is part three of a series designed to get your auto scaling environment running.  If you&rsquo;re just tuning in, check out <a href="/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano">part 1</a> and <a href="/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2">part 2</a></p>
+
+<h2>Review</h2>
 
 <p>In the last part of this series, we reviewed a bunch of scripts used to deal with properly snapshotting and mounting volumes.  In this part we&rsquo;ll get our auto scaling system set up in aws.  Then we&rsquo;ll give a high-level run-through of what you need to do to complete your setup.  In this part we&rsquo;ll review these scripts:</p>
+
+<h2>The Scripts</h2>
 
 <ol>
 <li><code>aws_create_lb.sh</code> &ndash; a bash script for creating an load balancer.</li>
@@ -127,7 +133,7 @@
 
 <p>Finally, I&rsquo;ll tie together the whole process, referring to scripts as I go.</p>
 
-<h3>Before you start</h3>
+<h2>Before you start</h2>
 
 <p>The scripts that we&rsquo;re about to execute will work out of the box, but will have some very codepen-specific stuff listed in them.  You&rsquo;ll probably want to do your own naming of policies, lbs, etc.</p>
 
@@ -189,7 +195,7 @@
 
 <h2>Conclusion</h2>
 
-<p>Setting up an environment that scales based on load is cumbersome if you must constantly build AMIs every time your code changes.  The instructions listed in this series make Capistrano deployment a natural part of your autocaling process.</p>
+<p>Setting up an environment that scales based on load is cumbersome if you must constantly build AMIs every time your code changes.  But, as you&rsquo;ve seen, you don&rsquo;t have to bake an entire AMI to take advantage of autoscaling. The instructions listed in this series make Capistrano deployment a natural part of your autocaling process.</p>
 
       
       
@@ -237,15 +243,15 @@
     </div>
     <div class="span10">
       <h1 class="link"><a href="/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2/">Painless AWS Autoscaling With EBS Snapshots And Capistrano Part 2</a></h1>
-      <h3>Part 2</h3>
+      <h2>Part 2</h2>
 
 <p>This is part two of a series designed to get your auto scaling environment running.  If you&rsquo;re just tuning in, check out <a href="/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano">part 1</a></p>
 
-<h3>Catching Up</h3>
+<h2>Catching Up</h2>
 
 <p>In the last part of this series, we did a bunch of manual key mashing to take our first snapshot.  This gives us the foundation we need to automate the the process.  In this part we will review the scripts required to make auto scaling work as expected.  Also, at the end of this post, I&rsquo;ll share the Chef recipe used to install all the scripts described here.</p>
 
-<h3>The Scripts</h3>
+<h2>The Scripts</h2>
 
 <ol>
 <li><code>snapshot.py</code> &ndash; a python script to snapshot a volume on deploy</li>
@@ -259,7 +265,7 @@
 </ol>
 
 
-<h3>Before you start</h3>
+<h2>Before you start</h2>
 
 <p>Let&rsquo;s review the tool set we&rsquo;ll be working with.  So far, we&rsquo;ve used bash and the <a href="http://alestic.com/2012/09/aws-command-line-tools">AWS Command Line Tools</a> and we&rsquo;ve done just fine.  We&rsquo;ll still use bash to stitch together our scripts, but in the next few steps we&rsquo;ll be using both python and ruby to accomplish our goals.  I find python to be more expressive and capable than bash when dealing with lots of variables that need to be type checked and have default values.  And ruby is a good fit for Capistrano.  So, we&rsquo;ll be using the <a href="https://pypi.python.org/pypi/boto">boto</a> libraries on the server side, and the <a href="http://aws.amazon.com/sdkforruby/">AWS SDK for Ruby</a> on the client (Capistrano) side.</p>
 
@@ -278,7 +284,7 @@
 
 <p>The rest of this part will describe the file you need and what they do.</p>
 
-<h3>snapshot.py</h3>
+<h2>snapshot.py</h2>
 
 <p><a href="https://gist.github.com/tsabat/5890733">source</a></p>
 
@@ -308,7 +314,7 @@
 
 <p>And that&rsquo;s it.  We&rsquo;ll use this script later on in our automation.</p>
 
-<h3>deploy:snapshot</h3>
+<h2>deploy:snapshot</h2>
 
 <p>The Capistrano task below calls <code>snapshot.py</code> on deployment.</p>
 
@@ -569,7 +575,7 @@
 
 <h2>Fin</h2>
 
-<p>You&rsquo;ve reached the end of this part.  So far, you&rsquo;ve reviewed all the scripts you&rsquo;ll need to auto scale your environment.  In <a href="/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2">part 2</a> we&rsquo;ll look at some bash scripts for setting up your autoscaling rules, and review where all these scripts go.</p>
+<p>You&rsquo;ve reached the end of this part.  So far, you&rsquo;ve reviewed all the scripts you&rsquo;ll need to auto scale your environment.  In <a href="/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3">part 3</a> we&rsquo;ll look at some bash scripts for setting up your autoscaling rules, and review where all these scripts go.</p>
 
       
       
@@ -823,7 +829,7 @@
 
 <p>Now you have your source directory hosted on an EBS volume.</p>
 
-<h3>Step 5: Verify, Deploy and Snapshot &ndash; Workstation Environment</h3>
+<h2>Step 5: Verify, Deploy and Snapshot &ndash; Workstation Environment</h2>
 
 <p>Now your code is ready for deployment.  Let&rsquo;s verify that everything is in place.</p>
 

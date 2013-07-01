@@ -9,7 +9,7 @@
   <meta name="author" content="Timothy Sabat">
 
   
-  <meta name="description" content="Painless AWS Autoscaling With EBS Snapshots and Capistrano Part 3 Jun 29th, 2013 This is part three of a series designed to get your auto scaling &hellip;">
+  <meta name="description" content="Painless AWS Autoscaling With EBS Snapshots and Capistrano Part 3 Jun 29th, 2013 Part 3 This is part three of a series designed to get your auto &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -94,9 +94,15 @@
 </header>
   <div class="row-fluid">
     <div class="span12">
-      <p>This is part three of a series designed to get your auto scaling environment running.  If you&rsquo;re just tuning in, check out <a href="/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano">part 1</a> and <a href="/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2">part 2</a></p>
+      <h2>Part 3</h2>
+
+<p>This is part three of a series designed to get your auto scaling environment running.  If you&rsquo;re just tuning in, check out <a href="/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano">part 1</a> and <a href="/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2">part 2</a></p>
+
+<h2>Review</h2>
 
 <p>In the last part of this series, we reviewed a bunch of scripts used to deal with properly snapshotting and mounting volumes.  In this part we&rsquo;ll get our auto scaling system set up in aws.  Then we&rsquo;ll give a high-level run-through of what you need to do to complete your setup.  In this part we&rsquo;ll review these scripts:</p>
+
+<h2>The Scripts</h2>
 
 <ol>
 <li><code>aws_create_lb.sh</code> &ndash; a bash script for creating an load balancer.</li>
@@ -108,7 +114,7 @@
 
 <p>Finally, I&rsquo;ll tie together the whole process, referring to scripts as I go.</p>
 
-<h3>Before you start</h3>
+<h2>Before you start</h2>
 
 <p>The scripts that we&rsquo;re about to execute will work out of the box, but will have some very codepen-specific stuff listed in them.  You&rsquo;ll probably want to do your own naming of policies, lbs, etc.</p>
 
@@ -170,7 +176,7 @@
 
 <h2>Conclusion</h2>
 
-<p>Setting up an environment that scales based on load is cumbersome if you must constantly build AMIs every time your code changes.  The instructions listed in this series make Capistrano deployment a natural part of your autocaling process.</p>
+<p>Setting up an environment that scales based on load is cumbersome if you must constantly build AMIs every time your code changes.  But, as you&rsquo;ve seen, you don&rsquo;t have to bake an entire AMI to take advantage of autoscaling. The instructions listed in this series make Capistrano deployment a natural part of your autocaling process.</p>
 
     </div>
   </div>
