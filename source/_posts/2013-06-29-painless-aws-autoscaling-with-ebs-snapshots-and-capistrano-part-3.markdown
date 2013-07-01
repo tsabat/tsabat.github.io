@@ -29,7 +29,7 @@ I wrote bash scripts to automate the creation of my autoscaling setup.  Let's re
 
 [aws_create_lb.sh](https://gist.github.com/tsabat/5891540) - It is pretty obvious what's happening in this script.  Be sure to change the `CERT_ID` variable and the `LB_NAME` to something that makes sense for you.
 
-[aws_create_launch_config.sh](https://gist.github.com/tsabat/5891427) - Here we're building our launch config.  Be aware that the `USER_DATA_FILE` here is the one we created in [part 2](/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2) of this walkthrough.  Find the source [here](https://gist.github.com/tsabat/5891084).
+[aws_create_launch_config.sh](https://gist.github.com/tsabat/5891427) - Here we're building our launch config.  Be aware that the `USER_DATA_FILE` here is the one we created in [part 2](/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2) of this walkthrough.  Find the source [here](https://gist.github.com/tsabat/5891084).
 
 [aws_create_autoscaling_group](https://gist.github.com/tsabat/5891536) - Again, boilerplate stuff.
 
