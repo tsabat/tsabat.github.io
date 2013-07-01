@@ -35,18 +35,6 @@
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
   
-  <script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-42111323-1']);
-    _gaq.push(['_trackPageview']);
-
-    (function() {
-      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-  </script>
-
 
 </head>
 
@@ -116,7 +104,7 @@
 </div>
 
 
-<h3>Choices to Make</h3>
+<h2>Choices to Make</h2>
 
 <p><a href="http://aws.amazon.com/">AWS</a> (Amazon Web Services) auto scaling is a simple concept on the surface: You get an AMI, set up rules, and the load balancer takes care of the rest. However, actually getting it done is more complicated.</p>
 
@@ -124,7 +112,7 @@
 
 <p>We recently rolled out the following solution at <a href="http://codepen.io/">CodePen</a>. It keeps our AMIs static and our application ready for scaling on EBS (Elastic Block Store) snapshots. We can push code using <a href="https://github.com/capistrano/capistrano">Capistrano</a> and let a few scripts distribute the ever-changing code base to our fleet of servers. I&rsquo;d like to share the steps required to make it work.  This series of posts will walk you through the steps required to build an auto-scaling infrastructure that stays out of your way.</p>
 
-<h3>Overview</h3>
+<h2>Overview</h2>
 
 <p>The process can be summed up like this:</p>
 
@@ -136,7 +124,7 @@
 </ul>
 
 
-<h3>Before you start</h3>
+<h2>Before you start</h2>
 
 <p>This walk through assumes that you have a working Capistrano deployment going on AWS. If you need some help with that, the guys at <a href="http://beanstalkapp.com/">Beanstalk</a> have a <a href="http://guides.beanstalkapp.com/deployments/deploy-with-capistrano.html">great guide</a> for getting started.  We use the Capistrano <a href="https://github.com/capistrano/capistrano/wiki/2.x-Multistage-Extension">Multistage</a> to separate our our deployment environments.</p>
 
@@ -144,7 +132,7 @@
 
 <p>A functional AWS API Tools environment is a requirement as well, because this walkthrough will use them extensively. Although I do my development on a Mac, I prefer a Linux environment for this type of work. I keep an EBS-backed micro instance around for all my admin work. I found Eric Hammond&rsquo;s instructions for <a href="http://alestic.com/2012/09/aws-command-line-tools">installing aws command line tools</a> invaluable for this task.</p>
 
-<h3>Identifying Your Environments</h3>
+<h2>Identifying Your Environments</h2>
 
 <p>You&rsquo;ll be working in two environments for this tutorial.</p>
 
