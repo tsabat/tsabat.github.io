@@ -6,7 +6,7 @@ comments: true
 categories: 
 ---
 
-This is part two of a series designed to get your auto scaling environment running.  If you're just tuning in, check out [part 1](/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano) and [part 2](/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2)
+This is part three of a series designed to get your auto scaling environment running.  If you're just tuning in, check out [part 1](/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano) and [part 2](/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2)
 
 In the last part of this series, we reviewed a bunch of scripts used to deal with properly snapshotting and mounting volumes.  In this part we'll get our auto scaling system set up in aws.  Then we'll give a high-level run-through of what you need to do to complete your setup.  In this part we'll review these scripts:
 
