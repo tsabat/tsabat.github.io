@@ -6,6 +6,15 @@ comments: true
 categories: aws 
 ---
 
+<div style="width: 250px; float: right; margin: 0 0 10px 10px; padding: 20px; border: 1px solid #ccc;">
+  <h4>A Three Part Series:</h4>
+  <ul>
+    <li><a href="http://boomboomboom.biz/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/">Part 1</a></li>
+    <li><a href="http://boomboomboom.biz/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2/">Part 2</a></li>
+    <li><a href="http://boomboomboom.biz/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3/">Part 3</a></li>
+  </ul>
+</div>
+
 ###Choices to Make
 
 [AWS](http://aws.amazon.com/) (Amazon Web Services) auto scaling is a simple concept on the surface: You get an AMI, set up rules, and the load balancer takes care of the rest. However, actually getting it done is more complicated. 
