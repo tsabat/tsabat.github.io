@@ -6,7 +6,7 @@ comments: true
 categories: aws 
 ---
 
-AWS AutoScaling is, on the surface, a simple concept: You get an AMI, set up some rules, and the Load Balancer takes care of the rest.  But the fact is, rolling AMIs for each deployment takes too long and would slows development down.  To get AutoScaling to fit into your development work flow in a transparent way takes more thought and planning.  
+AWS AutoScaling is, on the surface, a simple concept: You get an AMI, set up some rules, and the Load Balancer takes care of the rest.  But the fact is, rolling AMIs for each deployment takes too long and slows development down.  To get AutoScaling to fit into your development work flow in a transparent way takes careful thought and planning.  
 
 We recently rolled out this solution at CodePen that keeps our AMIs static and our application ready for scaling on EBS snapshots.  We can push code using Capistrano and let a few scripts distribute the ever-changing code base to our fleet of servers. I'd like to share the steps required to make it work.  This series of posts will walk you through the steps required to build an auto-scaling infrastructure that stays out of your way.  
 
