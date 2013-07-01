@@ -245,4 +245,4 @@ This pattern is repeated throughout the document.
 
 ##Fin
 
-You've reached the end of this part.  So far, you've reviewed all the scripts you'll need to auto scale your environment.  In [part 2](/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3) we'll look at some bash scripts for setting up your autoscaling rules, and review where all these scripts go.
+You've reached the end of this part.  So far, you've reviewed all the scripts you'll need to auto scale your environment.  In [part 2](/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2) we'll look at some bash scripts for setting up your autoscaling rules, and review where all these scripts go.
