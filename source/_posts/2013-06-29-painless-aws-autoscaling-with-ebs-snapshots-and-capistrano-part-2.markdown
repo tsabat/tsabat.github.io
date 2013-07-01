@@ -7,15 +7,15 @@ categories: aws
 ---
 
 
-###Part 2
+##Part 2
 
 This is part two of a series designed to get your auto scaling environment running.  If you're just tuning in, check out [part 1](/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano)
 
-###Catching Up
+##Catching Up
 
 In the last part of this series, we did a bunch of manual key mashing to take our first snapshot.  This gives us the foundation we need to automate the the process.  In this part we will review the scripts required to make auto scaling work as expected.  Also, at the end of this post, I'll share the Chef recipe used to install all the scripts described here.
 
-###The Scripts
+##The Scripts
 
 1. `snapshot.py` - a python script to snapshot a volume on deploy
 1. `deploy:snapshot` - a capistrano task used to call `snapshot.py`
@@ -26,7 +26,7 @@ In the last part of this series, we did a bunch of manual key mashing to take ou
 1. `userdata.sh` - a userdata script that does not include chef bootstrapping.
 1. `autoscaling` - a chef recipe used to set up all the scripts above.
 
-###Before you start
+##Before you start
 
 Let's review the tool set we'll be working with.  So far, we've used bash and the [AWS Command Line Tools](http://alestic.com/2012/09/aws-command-line-tools) and we've done just fine.  We'll still use bash to stitch together our scripts, but in the next few steps we'll be using both python and ruby to accomplish our goals.  I find python to be more expressive and capable than bash when dealing with lots of variables that need to be type checked and have default values.  And ruby is a good fit for Capistrano.  So, we'll be using the [boto](https://pypi.python.org/pypi/boto) libraries on the server side, and the [AWS SDK for Ruby](http://aws.amazon.com/sdkforruby/) on the client (Capistrano) side.
 
@@ -42,7 +42,7 @@ Also, boto expects on a `.boto` file to exist in the home directory for the user
 
 The rest of this part will describe the file you need and what they do.
 
-###snapshot.py
+##snapshot.py
 
 [source](https://gist.github.com/tsabat/5890733)
 
@@ -69,7 +69,7 @@ snap.add_tag('Name', args.tag)
 
 And that's it.  We'll use this script later on in our automation.
 
-###deploy:snapshot
+##deploy:snapshot
 
 The Capistrano task below calls `snapshot.py` on deployment.
 
@@ -252,4 +252,4 @@ This pattern is repeated throughout the document.
 
 ##Fin
 
-You've reached the end of this part.  So far, you've reviewed all the scripts you'll need to auto scale your environment.  In [part 2](/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2) we'll look at some bash scripts for setting up your autoscaling rules, and review where all these scripts go.
+You've reached the end of this part.  So far, you've reviewed all the scripts you'll need to auto scale your environment.  In [part 3](/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3) we'll look at some bash scripts for setting up your autoscaling rules, and review where all these scripts go.

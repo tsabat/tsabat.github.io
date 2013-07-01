@@ -6,9 +6,15 @@ comments: true
 categories: 
 ---
 
+##Part 3
+
 This is part three of a series designed to get your auto scaling environment running.  If you're just tuning in, check out [part 1](/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano) and [part 2](/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2)
 
+##Review
+
 In the last part of this series, we reviewed a bunch of scripts used to deal with properly snapshotting and mounting volumes.  In this part we'll get our auto scaling system set up in aws.  Then we'll give a high-level run-through of what you need to do to complete your setup.  In this part we'll review these scripts:
+
+##The Scripts
 
 1. `aws_create_lb.sh` - a bash script for creating an load balancer.
 1. `aws_create_launch_config.sh` - a bash script for creating launch configs.
@@ -17,7 +23,7 @@ In the last part of this series, we reviewed a bunch of scripts used to deal wit
 
 Finally, I'll tie together the whole process, referring to scripts as I go.
 
-###Before you start
+##Before you start
 
 The scripts that we're about to execute will work out of the box, but will have some very codepen-specific stuff listed in them.  You'll probably want to do your own naming of policies, lbs, etc.
 
@@ -67,4 +73,4 @@ I've thrown a lot of information at you all at once here and it's time to review
 
 ##Conclusion
 
-Setting up an environment that scales based on load is cumbersome if you must constantly build AMIs every time your code changes.  The instructions listed in this series make Capistrano deployment a natural part of your autocaling process.
+Setting up an environment that scales based on load is cumbersome if you must constantly build AMIs every time your code changes.  But, as you've seen, you don't have to bake an entire AMI to take advantage of autoscaling. The instructions listed in this series make Capistrano deployment a natural part of your autocaling process.

@@ -174,7 +174,9 @@ mount
 
 Now you have your source directory hosted on an EBS volume.
 
-###Step 5: Verify, Deploy and Snapshot - Workstation Environment
+
+##Step 5: Verify, Deploy and Snapshot - Workstation Environment
+
 
 Now your code is ready for deployment.  Let's verify that everything is in place.
 
