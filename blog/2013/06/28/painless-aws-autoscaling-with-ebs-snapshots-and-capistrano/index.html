@@ -9,7 +9,7 @@
   <meta name="author" content="Timothy Sabat">
 
   
-  <meta name="description" content="AWS AutoScaling is, on the surface, a simple concept: You get an AMI, set up some rules, and the Load Balancer takes care of the rest. But the fact &hellip;">
+  <meta name="description" content="AWS auto scaling is, on the surface, a simple concept: You get an AMI, set up some rules, and the Load Balancer takes care of the rest. However, the &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -93,7 +93,9 @@
   </header>
 
 
-<div class="entry-content"><p>AWS AutoScaling is, on the surface, a simple concept: You get an AMI, set up some rules, and the Load Balancer takes care of the rest.  But the fact is, rolling AMIs for each deployment takes too long and slows development down.  To get AutoScaling to fit into your development work flow in a transparent way takes careful thought and planning.</p>
+<div class="entry-content"><p>AWS auto scaling is, on the surface, a simple concept: You get an AMI, set up some rules, and the Load Balancer takes care of the rest.  However, the picture is more complicated than that.</p>
+
+<p>Some choices are worse than others: you could bake an AMI before you deploy, but that could add 10 minutes or more to each deployment.  Some are dangerous: you could create an AMI after each deploy, but you run the risk that an auto scale even happens before your AMIs are done.  Plus, you have a whole variety of AMIs deployed in at any given time.  Some are similar to what we propose in this tutorial: You could push your code to s3 on each deploy and have user-data scripts that pull it down on each auto scaling event.  However you slice it, to get auto scaling to fit into your development work flow in a transparent way takes careful thought and planning.</p>
 
 <p>We recently rolled out this solution at CodePen that keeps our AMIs static and our application ready for scaling on EBS snapshots.  We can push code using Capistrano and let a few scripts distribute the ever-changing code base to our fleet of servers. I&rsquo;d like to share the steps required to make it work.  This series of posts will walk you through the steps required to build an auto-scaling infrastructure that stays out of your way.</p>
 
@@ -329,7 +331,7 @@
 
 <h2>Done, for now.</h2>
 
-<p>In <a href="/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2">part 2</a> of this series, we&rsquo;ll automate what we did here with a script.</p>
+<p>In <a href="/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2">part 2</a> of this series, we&rsquo;ll automate what we did here with a script.</p>
 </div>
 
 
