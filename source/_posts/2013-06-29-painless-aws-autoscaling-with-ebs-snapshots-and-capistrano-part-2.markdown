@@ -6,7 +6,7 @@ comments: true
 categories: aws
 ---
 
-This is part two of a series designed to get your auto scaling environment running.  If you're just tuning in, check out [part 1](/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano)
+This is part two of a series designed to get your auto scaling environment running.  If you're just tuning in, check out [part 1](/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano)
 
 In the last part of this series, we did a bunch of manual key mashing to take our first snapshot.  This gives us the foundation we need to automate the the process.  In this part we will review the scripts required to make auto scaling work as expected.  Also, at the end of this post, I'll share the Chef recipe used to install all the scripts described here.
 
@@ -245,4 +245,4 @@ This pattern is repeated throughout the document.
 
 ##Fin
 
-You've reached the end of this part.  So far, you've reviewed all the scripts you'll need to auto scale your environment.  In [part 2](/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3) we'll look at some bash scripts for setting up your autoscaling rules, and review where all these scripts go.
+You've reached the end of this part.  So far, you've reviewed all the scripts you'll need to auto scale your environment.  In [part 2](/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3) we'll look at some bash scripts for setting up your autoscaling rules, and review where all these scripts go.

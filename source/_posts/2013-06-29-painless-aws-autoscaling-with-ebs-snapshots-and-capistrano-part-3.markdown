@@ -6,7 +6,7 @@ comments: true
 categories: 
 ---
 
-This is part two of a series designed to get your auto scaling environment running.  If you're just tuning in, check out [part 1](/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano) and [part 2](/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2)
+This is part two of a series designed to get your auto scaling environment running.  If you're just tuning in, check out [part 1](/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano) and [part 2](/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2)
 
 In the last part of this series, we reviewed a bunch of scripts used to deal with properly snapshotting and mounting volumes.  In this part we'll get our auto scaling system set up in aws.  Then we'll give a high-level run-through of what you need to do to complete your setup.  In this part we'll review these scripts:
 
@@ -29,7 +29,7 @@ I wrote bash scripts to automate the creation of my autoscaling setup.  Let's re
 
 [aws_create_lb.sh](https://gist.github.com/tsabat/5891540) - It is pretty obvious what's happening in this script.  Be sure to change the `CERT_ID` variable and the `LB_NAME` to something that makes sense for you.
 
-[aws_create_launch_config.sh](https://gist.github.com/tsabat/5891427) - Here we're building our launch config.  Be aware that the `USER_DATA_FILE` here is the one we created in [part 2](/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2) of this walkthrough.  Find the source [here](https://gist.github.com/tsabat/5891084).
+[aws_create_launch_config.sh](https://gist.github.com/tsabat/5891427) - Here we're building our launch config.  Be aware that the `USER_DATA_FILE` here is the one we created in [part 2](/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2) of this walkthrough.  Find the source [here](https://gist.github.com/tsabat/5891084).
 
 [aws_create_autoscaling_group](https://gist.github.com/tsabat/5891536) - Again, boilerplate stuff.
 
@@ -57,7 +57,7 @@ I've thrown a lot of information at you all at once here and it's time to review
 * Bootstrap your node with Chef, if you're using it
 * Create an AMI to work with
 * Launch a fresh AMI to work through your process
-* Manually set up your mount and volume for the first time, and snaphshot it, as described in [part 1](/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano).
+* Manually set up your mount and volume for the first time, and snaphshot it, as described in [part 1](/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano).
 * Put `snapshot.py` and `prep_instance.py` onto your production AMI.
 * Add the `deploy:snapshot` task into your `deploy.rb`.
 * Put `utils.rb` into your `config` dir in your rails setup.
