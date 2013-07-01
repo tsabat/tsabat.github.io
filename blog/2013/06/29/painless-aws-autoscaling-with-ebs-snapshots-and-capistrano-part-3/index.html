@@ -9,7 +9,7 @@
   <meta name="author" content="Timothy Sabat">
 
   
-  <meta name="description" content="Painless AWS Autoscaling With EBS Snapshots and Capistrano Part 3 Jun 29th, 2013 This is part two of a series designed to get your auto scaling &hellip;">
+  <meta name="description" content="Painless AWS Autoscaling With EBS Snapshots and Capistrano Part 3 Jun 29th, 2013 This is part three of a series designed to get your auto scaling &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -35,18 +35,6 @@
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 
   
-  <script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-42111323-1']);
-    _gaq.push(['_trackPageview']);
-
-    (function() {
-      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-  </script>
-
 
 </head>
 
@@ -106,7 +94,7 @@
 </header>
   <div class="row-fluid">
     <div class="span12">
-      <p>This is part two of a series designed to get your auto scaling environment running.  If you&rsquo;re just tuning in, check out <a href="/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano">part 1</a> and <a href="/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2">part 2</a></p>
+      <p>This is part three of a series designed to get your auto scaling environment running.  If you&rsquo;re just tuning in, check out <a href="/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano">part 1</a> and <a href="/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2">part 2</a></p>
 
 <p>In the last part of this series, we reviewed a bunch of scripts used to deal with properly snapshotting and mounting volumes.  In this part we&rsquo;ll get our auto scaling system set up in aws.  Then we&rsquo;ll give a high-level run-through of what you need to do to complete your setup.  In this part we&rsquo;ll review these scripts:</p>
 

@@ -4,7 +4,7 @@
   <title><![CDATA[Boom]]></title>
   <link href="http://tsabat.github.io/atom.xml" rel="self"/>
   <link href="http://tsabat.github.io/"/>
-  <updated>2013-07-01T00:05:14-05:00</updated>
+  <updated>2013-07-01T00:11:45-05:00</updated>
   <id>http://tsabat.github.io/</id>
   <author>
     <name><![CDATA[Timothy Sabat]]></name>
@@ -18,7 +18,7 @@
     <link href="http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3/"/>
     <updated>2013-06-29T09:47:00-05:00</updated>
     <id>http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3</id>
-    <content type="html"><![CDATA[<p>This is part two of a series designed to get your auto scaling environment running.  If you&rsquo;re just tuning in, check out <a href="http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano">part 1</a> and <a href="http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2">part 2</a></p>
+    <content type="html"><![CDATA[<p>This is part three of a series designed to get your auto scaling environment running.  If you&rsquo;re just tuning in, check out <a href="http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano">part 1</a> and <a href="http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2">part 2</a></p>
 
 <p>In the last part of this series, we reviewed a bunch of scripts used to deal with properly snapshotting and mounting volumes.  In this part we&rsquo;ll get our auto scaling system set up in aws.  Then we&rsquo;ll give a high-level run-through of what you need to do to complete your setup.  In this part we&rsquo;ll review these scripts:</p>
 
