@@ -6,6 +6,8 @@ comments: true
 categories: aws 
 ---
 
+###Choices to Make
+
 AWS auto scaling is, on the surface, a simple concept: You get an AMI, set up some rules, and the Load Balancer takes care of the rest.  However, the picture is more complicated than that.  
 
 Some choices are worse than others: you could bake an AMI before you deploy, but that could add 10 minutes or more to each deployment.  Some are dangerous: you could create an AMI after each deploy, but you run the risk that an auto scale even happens before your AMIs are done.  Plus, you have a whole variety of AMIs deployed in at any given time.  Some are similar to what we propose in this tutorial: You could push your code to s3 on each deploy and have user-data scripts that pull it down on each auto scaling event.  However you slice it, to get auto scaling to fit into your development work flow in a transparent way takes careful thought and planning.  

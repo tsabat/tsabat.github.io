@@ -6,9 +6,16 @@ comments: true
 categories: aws
 ---
 
+
+###Part 2
+
 This is part two of a series designed to get your auto scaling environment running.  If you're just tuning in, check out [part 1](/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano)
 
+###Catching Up
+
 In the last part of this series, we did a bunch of manual key mashing to take our first snapshot.  This gives us the foundation we need to automate the the process.  In this part we will review the scripts required to make auto scaling work as expected.  Also, at the end of this post, I'll share the Chef recipe used to install all the scripts described here.
+
+###The Scripts
 
 1. `snapshot.py` - a python script to snapshot a volume on deploy
 1. `deploy:snapshot` - a capistrano task used to call `snapshot.py`
@@ -117,7 +124,7 @@ def wait_volume(conn, args, volume, expected_status):
 This tool grabs all instance DNS names from aws.  We use this in the Capistrano multistage `production.rb` to get an array of dns names.  It is pretty self-explanatory.  Since this script will be distributed to your developers, it would probably be a good idea to lock the credentials down to read-only.  You will have to require this in your `deploy.rb` like so
 
 ```ruby
-equire './config/deploy/utils'
+require './config/deploy/utils'
 ```
 
 Here's the file itself.  This makes deployment nice because it dynamically grabs EC2 Instances tagged with the Role and Environment you specify along with an `instance-state-name` of running.  This guarantees that you're pushing out to all the servers.
@@ -155,7 +162,7 @@ end
 
 [source](https://gist.github.com/tsabat/5891043)
 
-The [capistrano multistage](https://github.com/capistrano/capistrano/wiki/2.x-Multistage-Extension) extension allows you to specify a file for each deployment target.  This script calls out to `utils.rb` to get dns names.
+The [capistrano multistage](https://github.com/capistrano/capistrano/wiki/2.x-Multistage-Extension) extension allows you to specify a file for each deployment target.  This script replaces `production.rb` and calls out to `utils.rb` to get dns names.
 
 ```ruby
 set :branch, "master"
@@ -183,7 +190,7 @@ The shebang line uses the `-ex` args to instruct bash to exit on error and to be
 #!/bin/bash -ex
 ```
 
-The `exec` call redirects standard out and error do three different places.
+The `exec` call redirects standard out and error to three different places.
 
 ```bash
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
