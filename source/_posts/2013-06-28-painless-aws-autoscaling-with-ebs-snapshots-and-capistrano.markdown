@@ -6,7 +6,9 @@ comments: true
 categories: aws 
 ---
 
-AWS AutoScaling is, on the surface, a simple concept: You get an AMI, set up some rules, and the Load Balancer takes care of the rest.  But the fact is, rolling AMIs for each deployment takes too long and slows development down.  To get AutoScaling to fit into your development work flow in a transparent way takes careful thought and planning.  
+AWS auto scaling is, on the surface, a simple concept: You get an AMI, set up some rules, and the Load Balancer takes care of the rest.  However, the picture is more complicated than that.  
+
+Some choices are worse than others: you could bake an AMI before you deploy, but that could add 10 minutes or more to each deployment.  Some are dangerous: you could create an AMI after each deploy, but you run the risk that an auto scale even happens before your AMIs are done.  Plus, you have a whole variety of AMIs deployed in at any given time.  Some are similar to what we propose in this tutorial: You could push your code to s3 on each deploy and have user-data scripts that pull it down on each auto scaling event.  However you slice it, to get auto scaling to fit into your development work flow in a transparent way takes careful thought and planning.  
 
 We recently rolled out this solution at CodePen that keeps our AMIs static and our application ready for scaling on EBS snapshots.  We can push code using Capistrano and let a few scripts distribute the ever-changing code base to our fleet of servers. I'd like to share the steps required to make it work.  This series of posts will walk you through the steps required to build an auto-scaling infrastructure that stays out of your way.  
 
@@ -18,7 +20,6 @@ The process can be summed up like this.
 * Snapshots are taken on deployment.
 * When AWS scales up, new instances are started from latest snapshot.
 * Instances are tagged with roles so that deployment scripts always push code to the right servers.
-
 
 ###Before you start
 
@@ -200,4 +201,4 @@ ec2-create-tag $SNAPSHOT_ID --tag Name="codepen-app"
 
 ##Done, for now.
 
-In [part 2](/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2) of this series, we'll automate what we did here with a script.
+In [part 2](/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2) of this series, we'll automate what we did here with a script.

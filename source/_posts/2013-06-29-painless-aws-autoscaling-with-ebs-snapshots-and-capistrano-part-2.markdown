@@ -6,7 +6,7 @@ comments: true
 categories: aws
 ---
 
-This is part two of a series designed to get your auto scaling environment running.  If you're just tuning in, check out [part 1](/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano)
+This is part two of a series designed to get your auto scaling environment running.  If you're just tuning in, check out [part 1](/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano)
 
 In the last part of this series, we did a bunch of manual key mashing to take our first snapshot.  This gives us the foundation we need to automate the the process.  In this part we will review the scripts required to make auto scaling work as expected.  Also, at the end of this post, I'll share the Chef recipe used to install all the scripts described here.
 
@@ -87,7 +87,7 @@ after :deploy, "deploy:snapshot"
 
 The script we'll review here will, given a tag, search for the most recent snapshot, create a volume and mount it.  Furthermore, the script will apply tags to the instance itself.  We'll use these tags in our Capistrano ruby script.
 
-As with the other python script, there is a `parsed_args` method that defines the default values we'll need.  The `help` section of each describes each default.  The pair that need a bit more explaining are `device_key` and `device_value`.  If you recall in Step 4 of [part one](/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/) of this series, device names can differ from AWS to your OS.  These two arguments compensate for this fact.
+As with the other python script, there is a `parsed_args` method that defines the default values we'll need.  The `help` section of each describes each default.  The pair that need a bit more explaining are `device_key` and `device_value`.  If you recall in Step 4 of [part one](/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/) of this series, device names can differ from AWS to your OS.  These two arguments compensate for this fact.
 
 Some interesting parts of the code include `wait_fstab` and `wait_volume`.  Both deal with the fact calls to create volumes, snapshots, and to attach devices are async.  So, we must poll the API, waiting for the status we expect.  For example, in the snippet below, our script sleeps for up to 60 seconds until the status we want appears.  If not, it throws an exception.
 
@@ -218,7 +218,7 @@ And finally we call `userdata.sh`
 
 [source](https://gist.github.com/tsabat/5891225)
 
-Ultimately, this is the script that does all the work.  It mounts drives as described in Step 4 of [part one](/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/) and then calls `prep_instance.py` from above.
+Ultimately, this is the script that does all the work.  It mounts drives as described in Step 4 of [part one](/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/) and then calls `prep_instance.py` from above.
 
 Although this script is mighty important, we've covered all the details elsewhere.  Look it over and you'll recognize parts.
 
@@ -245,4 +245,4 @@ This pattern is repeated throughout the document.
 
 ##Fin
 
-You've reached the end of this part.  So far, you've reviewed all the scripts you'll need to auto scale your environment.  In [part 2](/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3) we'll look at some bash scripts for setting up your autoscaling rules, and review where all these scripts go.
+You've reached the end of this part.  So far, you've reviewed all the scripts you'll need to auto scale your environment.  In [part 2](/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3) we'll look at some bash scripts for setting up your autoscaling rules, and review where all these scripts go.
