@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: redis | Boom]]></title>
+  <link href="http://tsabat.github.io/blog/categories/redis/atom.xml" rel="self"/>
+  <link href="http://tsabat.github.io/"/>
+  <updated>2013-09-07T14:22:31-07:00</updated>
+  <id>http://tsabat.github.io/</id>
+  <author>
+    <name><![CDATA[Timothy Sabat]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Migrate Redis To A New Server Without Downtime]]></title>
+    <link href="http://tsabat.github.io/blog/2013/09/07/migrate-redis-to-a-new-server-without-downtime/"/>
+    <updated>2013-09-07T13:25:00-07:00</updated>
+    <id>http://tsabat.github.io/blog/2013/09/07/migrate-redis-to-a-new-server-without-downtime</id>
+    <content type="html"><![CDATA[<p>There comes a time when you wish to move your redis system from one server to another.  At <a href="http://codepen.io">CodePen</a> we recently did this to move the redis server to a bigger box.  Below I&rsquo;ll outline the steps we followed to move our redis instances without downtime.</p>
+
+<p>Throughout this walk through, we&rsquo;ll refer to the following terms.</p>
+
+<ul>
+<li>current master &ndash; your currently running redis box.</li>
+<li>candidate master &ndash; where you&rsquo;ll be migrating to.</li>
+<li>current slave &ndash; your currently running redis slave box.</li>
+<li>candidate slave &ndash; the box that will replicate from your candidate master.</li>
+</ul>
+
+
+<p>This process will take you about 2 hours with setup.  The data migration takes a few minutes.</p>
+
+<h1>Step 1: Set up the two boxes.</h1>
+
+<p>We used the <a href="https://github.com/miah/chef-redis">chef-redis</a> cookbook to build redis from source.  The role with the appropriate attributes overridden follows below.</p>
+
+<p>```ruby
+name &ldquo;redis&rdquo;
+description &ldquo;redis&rdquo;</p>
+
+<p>run_list &lsquo;recipe[redis::server]&rsquo;</p>
+
+<p>override_attributes &ldquo;redis&rdquo; =>
+  {</p>
+
+<pre><code>'install_type' =&gt; 'source',
+'symlink_binaries' =&gt; true,
+'init_style' =&gt; 'init',
+'config' =&gt; {'bind' =&gt; '0.0.0.0'}
+</code></pre>
+
+<p>  }
+```</p>
+
+<p>One thing worth noting: you&rsquo;ll need to fork and merge <a href="https://github.com/yagince/chef-redis/commit/d7ef9d763ade63f6c62817156e1499fc0d083321">this</a> <a href="https://github.com/miah/chef-redis/pull/52">pull request</a> to allow the <code>redis-server</code> and <code>redis-cli</code> binaries to symlink properly.  If that pull request has been accepted, you can safely proceed.</p>
+
+<h1>Step Two: Set up replication on the candidate slave.</h1>
+
+<p>After having recently set up chained replication on a MySQL server, configuring replication for redis was quite refreshing.  To do so, log onto your candidate slave and issue the following command, remembering to change the
+placeholder below to the real candidate master IP.</p>
+
+<p><code>bash
+redis-cli
+slaveof &lt;candidate_master&gt; 6379
+</code></p>
+
+<p>Data should not exist on your candidate master, but if for some reason it is, you can verify that the master/slave are synced by issuing the following command.</p>
+
+<p><code>bash
+redis-cli info | grep '# Replication' -A 10
+</code></p>
+
+<p>Then look for <code>master_sync_in_progress:0</code> in the output.</p>
+
+<p>```</p>
+
+<h1>Replication</h1>
+
+<p>role:slave
+master_host:ec2-50-***.us-west-2.compute.amazonaws.com
+master_port:6379
+master_link_status:up
+master_last_io_seconds_ago:1
+master_sync_in_progress:0
+slave_priority:100
+slave_read_only:1
+connected_slaves:0
+```</p>
+
+<h1>Step 3: Start the migration.</h1>
+
+<p>Now it&rsquo;s time to move your data.  The complexities of this operation are described in a great <a href="http://garantiadata.com/blog/real-time-synchronization-tool-for-redis-migration#.Uit9M2SG1Uu">article</a> by Garantia Data and are abstracted away with a fantastic <a href="https://github.com/GarantiaData/redis-migrate/blob/master/redis-migrate.py">script</a> they wrote to make your life great.  The script is short and, being python, very readable.  Understand the concepts and proceed.</p>
+
+<p>To summarize, the script will</p>
+
+<ul>
+<li>sync master to candidate master, showing progress</li>
+<li>prompt you to turn off the <code>read only</code> flag on the the candidate master</li>
+<li>wait for you to re-point your applications to the new candidate master</li>
+<li>prompt you to make the candidate master into a master</li>
+</ul>
+
+
+<p>The script can move a whole fleet of redis instances if you have them.</p>
+
+<p>So, let&rsquo;s get started. On a server with access to the master and candidate master, get the script</p>
+
+<p><code>bash
+curl https://raw.github.com/GarantiaData/redis-migrate/master/redis-migrate.py &gt; redis-migrate.py
+chmod +x redis-migrate.py
+</code></p>
+
+<p>and install the python dependencies</p>
+
+<p><code>bash
+easy_install pip
+pip install redis
+</code></p>
+
+<p>Then run the script</p>
+
+<p><code>bash
+./redis-migrate --src &lt;current_master&gt; --dst &lt;candidate_master&gt;
+</code></p>
+
+<p>And follow the on-screen instructions.</p>
+
+<p>After you cut over the applications from the current master to the candidate master, and before you stop synchronization from your master to your slave, be sure to check that no more clients are connecting to the current master.  If you find that you have other connections, be sure you understand what they are doing.  In other words, be sure you have re-pointed all your apps.</p>
+
+<p><code>bash
+redis-cli client list | awk '{print $1}' | sed s/addr=//g | sed s/:.*//g | sort | uniq
+</code></p>
+
+<p>And that&rsquo;s it.  We moved about 1.5G of cache in a few seconds because Redis is fast!</p>
+]]></content>
+  </entry>
+  
+</feed>

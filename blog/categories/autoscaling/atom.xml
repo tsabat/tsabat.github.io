@@ -4,7 +4,7 @@
   <title><![CDATA[Category: autoscaling | Boom]]></title>
   <link href="http://tsabat.github.io/blog/categories/autoscaling/atom.xml" rel="self"/>
   <link href="http://tsabat.github.io/"/>
-  <updated>2013-07-01T10:38:24-05:00</updated>
+  <updated>2013-09-07T14:22:31-07:00</updated>
   <id>http://tsabat.github.io/</id>
   <author>
     <name><![CDATA[Timothy Sabat]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Painless AWS Autoscaling With EBS Snapshots And Capistrano part 3]]></title>
     <link href="http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3/"/>
-    <updated>2013-06-29T09:47:00-05:00</updated>
+    <updated>2013-06-29T09:47:00-07:00</updated>
     <id>http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3</id>
     <content type="html"><![CDATA[<div style="width: 250px; float: right; margin: 0 0 10px 10px; padding: 20px; border: 1px solid #ccc;">
   <h4>A Three Part Series:</h4>
@@ -106,7 +106,7 @@ SCALE_DOWN=$(add_policy)
   <entry>
     <title type="html"><![CDATA[Painless AWS Autoscaling With EBS Snapshots And Capistrano Part 2]]></title>
     <link href="http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2/"/>
-    <updated>2013-06-29T05:12:00-05:00</updated>
+    <updated>2013-06-29T05:12:00-07:00</updated>
     <id>http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2</id>
     <content type="html"><![CDATA[<div style="width: 250px; float: right; margin: 0 0 10px 10px; padding: 20px; border: 1px solid #ccc;">
   <h4>A Three Part Series:</h4>
@@ -395,7 +395,7 @@ end
   <entry>
     <title type="html"><![CDATA[Painless AWS Auto Scaling With EBS Snapshots And Capistrano]]></title>
     <link href="http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/"/>
-    <updated>2013-06-28T09:10:00-05:00</updated>
+    <updated>2013-06-28T09:10:00-07:00</updated>
     <id>http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano</id>
     <content type="html"><![CDATA[<div style="width: 250px; float: right; margin: 0 0 10px 10px; padding: 20px; border: 1px solid #ccc;">
   <h4>A Three Part Series:</h4>
@@ -407,7 +407,7 @@ end
 </div>
 
 
-<h2>Choices to Make</h2>
+<h3>Choices to Make</h3>
 
 <p><a href="http://aws.amazon.com/">AWS</a> (Amazon Web Services) auto scaling is a simple concept on the surface: You get an AMI, set up rules, and the load balancer takes care of the rest. However, actually getting it done is more complicated.</p>
 
@@ -415,7 +415,7 @@ end
 
 <p>We recently rolled out the following solution at <a href="http://codepen.io/">CodePen</a>. It keeps our AMIs static and our application ready for scaling on EBS (Elastic Block Store) snapshots. We can push code using <a href="https://github.com/capistrano/capistrano">Capistrano</a> and let a few scripts distribute the ever-changing code base to our fleet of servers. I&rsquo;d like to share the steps required to make it work.  This series of posts will walk you through the steps required to build an auto-scaling infrastructure that stays out of your way.</p>
 
-<h2>Overview</h2>
+<h3>Overview</h3>
 
 <p>The process can be summed up like this:</p>
 
@@ -427,7 +427,7 @@ end
 </ul>
 
 
-<h2>Before you start</h2>
+<h3>Before you start</h3>
 
 <p>This walk through assumes that you have a working Capistrano deployment going on AWS. If you need some help with that, the guys at <a href="http://beanstalkapp.com/">Beanstalk</a> have a <a href="http://guides.beanstalkapp.com/deployments/deploy-with-capistrano.html">great guide</a> for getting started.  We use the Capistrano <a href="https://github.com/capistrano/capistrano/wiki/2.x-Multistage-Extension">Multistage</a> to separate our our deployment environments.</p>
 
@@ -435,7 +435,7 @@ end
 
 <p>A functional AWS API Tools environment is a requirement as well, because this walkthrough will use them extensively. Although I do my development on a Mac, I prefer a Linux environment for this type of work. I keep an EBS-backed micro instance around for all my admin work. I found Eric Hammond&rsquo;s instructions for <a href="http://alestic.com/2012/09/aws-command-line-tools">installing aws command line tools</a> invaluable for this task.</p>
 
-<h2>Identifying Your Environments</h2>
+<h3>Identifying Your Environments</h3>
 
 <p>You&rsquo;ll be working in two environments for this tutorial.</p>
 

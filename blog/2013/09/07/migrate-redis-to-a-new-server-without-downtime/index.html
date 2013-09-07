@@ -1,0 +1,371 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Migrate Redis To A New Server Without Downtime - Boom</title>
+  <meta name="author" content="Timothy Sabat">
+
+  
+  <meta name="description" content="Migrate Redis to a New Server Without Downtime Sep 7th, 2013 There comes a time when you wish to move your redis system from one server to another. &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://tsabat.github.io/blog/2013/09/07/migrate-redis-to-a-new-server-without-downtime">
+  <link href="/favicon.png" rel="icon">
+  <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Boom" type="application/atom+xml">
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap-collapse.js"></script>
+  <script src="/js/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/js/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-42111323-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <div class="navbar navbar-inverse navbar-static-top">
+  	<div class="navbar-inner">
+  	  <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+          <span class="fui-menu-24"></span>
+        </a>
+  	  	<div class="nav-collapse collapse navbar-responsive-collapse" style="height:0;">
+  	      <ul class="nav">
+    
+</ul>
+
+<ul class="nav pull-right">
+    
+    <li><a href="http://github.com/tsabat" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></li>
+    
+    
+    
+    <li><a href="http://twitter.com/timsabat" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></li>
+    
+    
+    
+</ul>
+
+  	    </div>
+  	  </div>
+  	</div>
+  </div>
+  <div class="container" id="main">
+    <div class="span12">
+      <div class="row-fluid">
+        <div id="content">
+          <div>
+<article class="hentry" role="article">
+  
+
+  <header>
+  <div class="jumbotron">
+    Migrate Redis to a New Server Without Downtime
+	<h5>
+
+
+
+
+
+
+
+
+  
+
+
+<i class="icon-calendar-empty"></i> <time datetime="2013-09-07T13:25:00-07:00" pubdate data-updated="true">Sep 7<span>th</span>, 2013</time></h5>
+  </div>
+</header>
+  <div class="row-fluid">
+    <div class="span12">
+      <p>There comes a time when you wish to move your redis system from one server to another.  At <a href="http://codepen.io">CodePen</a> we recently did this to move the redis server to a bigger box.  Below I&rsquo;ll outline the steps we followed to move our redis instances without downtime.</p>
+
+<p>Throughout this walk through, we&rsquo;ll refer to the following terms.</p>
+
+<ul>
+<li>current master &ndash; your currently running redis box.</li>
+<li>candidate master &ndash; where you&rsquo;ll be migrating to.</li>
+<li>current slave &ndash; your currently running redis slave box.</li>
+<li>candidate slave &ndash; the box that will replicate from your candidate master.</li>
+</ul>
+
+
+<p>This process will take you about 2 hours with setup.  The data migration takes a few minutes.</p>
+
+<h1>Step 1: Set up the two boxes.</h1>
+
+<p>We used the <a href="https://github.com/miah/chef-redis">chef-redis</a> cookbook to build redis from source.  The role with the appropriate attributes overridden follows below.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">name</span> <span class="s2">&quot;redis&quot;</span>
+</span><span class='line'><span class="n">description</span> <span class="s2">&quot;redis&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">run_list</span> <span class="s1">&#39;recipe[redis::server]&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">override_attributes</span> <span class="s2">&quot;redis&quot;</span> <span class="o">=&gt;</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="s1">&#39;install_type&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;source&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s1">&#39;symlink_binaries&#39;</span> <span class="o">=&gt;</span> <span class="kp">true</span><span class="p">,</span>
+</span><span class='line'>    <span class="s1">&#39;init_style&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;init&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s1">&#39;config&#39;</span> <span class="o">=&gt;</span> <span class="p">{</span><span class="s1">&#39;bind&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;0.0.0.0&#39;</span><span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>One thing worth noting: you&rsquo;ll need to fork and merge <a href="https://github.com/yagince/chef-redis/commit/d7ef9d763ade63f6c62817156e1499fc0d083321">this</a> <a href="https://github.com/miah/chef-redis/pull/52">pull request</a> to allow the <code>redis-server</code> and <code>redis-cli</code> binaries to symlink properly.  If that pull request has been accepted, you can safely proceed.</p>
+
+<h1>Step Two: Set up replication on the candidate slave.</h1>
+
+<p>After having recently set up chained replication on a MySQL server, configuring replication for redis was quite refreshing.  To do so, log onto your candidate slave and issue the following command, remembering to change the
+placeholder below to the real candidate master IP.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>redis-cli
+</span><span class='line'>slaveof &lt;candidate_master&gt; 6379
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Data should not exist on your candidate master, but if for some reason it is, you can verify that the master/slave are synced by issuing the following command.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>redis-cli info | grep <span class="s1">&#39;# Replication&#39;</span> -A 10
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then look for <code>master_sync_in_progress:0</code> in the output.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># Replication</span>
+</span><span class='line'>role:slave
+</span><span class='line'>master_host:ec2-50-***.us-west-2.compute.amazonaws.com
+</span><span class='line'>master_port:6379
+</span><span class='line'>master_link_status:up
+</span><span class='line'>master_last_io_seconds_ago:1
+</span><span class='line'>master_sync_in_progress:0
+</span><span class='line'>slave_priority:100
+</span><span class='line'>slave_read_only:1
+</span><span class='line'>connected_slaves:0
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Step 3: Start the migration.</h1>
+
+<p>Now it&rsquo;s time to move your data.  The complexities of this operation are described in a great <a href="http://garantiadata.com/blog/real-time-synchronization-tool-for-redis-migration#.Uit9M2SG1Uu">article</a> by Garantia Data and are abstracted away with a fantastic <a href="https://github.com/GarantiaData/redis-migrate/blob/master/redis-migrate.py">script</a> they wrote to make your life great.  The script is short and, being python, very readable.  Understand the concepts and proceed.</p>
+
+<p>To summarize, the script will</p>
+
+<ul>
+<li>sync master to candidate master, showing progress</li>
+<li>prompt you to turn off the <code>read only</code> flag on the the candidate master</li>
+<li>wait for you to re-point your applications to the new candidate master</li>
+<li>prompt you to make the candidate master into a master</li>
+</ul>
+
+
+<p>The script can move a whole fleet of redis instances if you have them.</p>
+
+<p>So, let&rsquo;s get started. On a server with access to the master and candidate master, get the script</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>curl https://raw.github.com/GarantiaData/redis-migrate/master/redis-migrate.py &gt; redis-migrate.py
+</span><span class='line'>chmod +x redis-migrate.py
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and install the python dependencies</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>easy_install pip
+</span><span class='line'>pip install redis
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then run the script</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>./redis-migrate --src &lt;current_master&gt; --dst &lt;candidate_master&gt;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And follow the on-screen instructions.</p>
+
+<p>After you cut over the applications from the current master to the candidate master, and before you stop synchronization from your master to your slave, be sure to check that no more clients are connecting to the current master.  If you find that you have other connections, be sure you understand what they are doing.  In other words, be sure you have re-pointed all your apps.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>redis-cli client list | awk <span class="s1">&#39;{print $1}&#39;</span> | sed s/addr<span class="o">=</span>//g | sed s/:.*//g | sort | uniq
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And that&rsquo;s it.  We moved about 1.5G of cache in a few seconds because Redis is fast!</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+    <div class="row-fluid">
+      
+      <div class="span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/redis/"><span class="badge">redis</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="span6 social-sharing">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
+  
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
+
+      </div>
+      
+      
+    </div>
+    
+    <div class="row-fluid">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3/" title="Previous Post: Painless AWS Autoscaling With EBS Snapshots And Capistrano part 3">&laquo; Painless AWS Autoscaling With EBS Snapshots And Capistrano part 3</a>
+          
+          
+        </p>
+      </div>
+    </div>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+
+
+        </div>
+      </div>
+      <div class="row-fluid">
+        <footer class="footer-page" role="contentinfo">
+          <p>
+  Copyright &copy; 2013 - Timothy Sabat -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> - Theme by <a href="http://alexgaribay.com">Alex Garibay</a>
+</p>
+
+
+        </footer>
+      </div>
+    </div>
+  </div>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'boomboomboom';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://tsabat.github.io/blog/2013/09/07/migrate-redis-to-a-new-server-without-downtime/';
+        var disqus_url = 'http://tsabat.github.io/blog/2013/09/07/migrate-redis-to-a-new-server-without-downtime/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

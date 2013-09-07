@@ -4,7 +4,7 @@
   <title><![CDATA[Boom]]></title>
   <link href="http://tsabat.github.io/atom.xml" rel="self"/>
   <link href="http://tsabat.github.io/"/>
-  <updated>2013-07-01T10:38:24-05:00</updated>
+  <updated>2013-09-07T14:22:31-07:00</updated>
   <id>http://tsabat.github.io/</id>
   <author>
     <name><![CDATA[Timothy Sabat]]></name>
@@ -14,9 +14,159 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Migrate Redis To A New Server Without Downtime]]></title>
+    <link href="http://tsabat.github.io/blog/2013/09/07/migrate-redis-to-a-new-server-without-downtime/"/>
+    <updated>2013-09-07T13:25:00-07:00</updated>
+    <id>http://tsabat.github.io/blog/2013/09/07/migrate-redis-to-a-new-server-without-downtime</id>
+    <content type="html"><![CDATA[<p>There comes a time when you wish to move your redis system from one server to another.  At <a href="http://codepen.io">CodePen</a> we recently did this to move the redis server to a bigger box.  Below I&rsquo;ll outline the steps we followed to move our redis instances without downtime.</p>
+
+<p>Throughout this walk through, we&rsquo;ll refer to the following terms.</p>
+
+<ul>
+<li>current master &ndash; your currently running redis box.</li>
+<li>candidate master &ndash; where you&rsquo;ll be migrating to.</li>
+<li>current slave &ndash; your currently running redis slave box.</li>
+<li>candidate slave &ndash; the box that will replicate from your candidate master.</li>
+</ul>
+
+
+<p>This process will take you about 2 hours with setup.  The data migration takes a few minutes.</p>
+
+<h1>Step 1: Set up the two boxes.</h1>
+
+<p>We used the <a href="https://github.com/miah/chef-redis">chef-redis</a> cookbook to build redis from source.  The role with the appropriate attributes overridden follows below.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">name</span> <span class="s2">&quot;redis&quot;</span>
+</span><span class='line'><span class="n">description</span> <span class="s2">&quot;redis&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">run_list</span> <span class="s1">&#39;recipe[redis::server]&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">override_attributes</span> <span class="s2">&quot;redis&quot;</span> <span class="o">=&gt;</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="s1">&#39;install_type&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;source&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s1">&#39;symlink_binaries&#39;</span> <span class="o">=&gt;</span> <span class="kp">true</span><span class="p">,</span>
+</span><span class='line'>    <span class="s1">&#39;init_style&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;init&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s1">&#39;config&#39;</span> <span class="o">=&gt;</span> <span class="p">{</span><span class="s1">&#39;bind&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;0.0.0.0&#39;</span><span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>One thing worth noting: you&rsquo;ll need to fork and merge <a href="https://github.com/yagince/chef-redis/commit/d7ef9d763ade63f6c62817156e1499fc0d083321">this</a> <a href="https://github.com/miah/chef-redis/pull/52">pull request</a> to allow the <code>redis-server</code> and <code>redis-cli</code> binaries to symlink properly.  If that pull request has been accepted, you can safely proceed.</p>
+
+<h1>Step Two: Set up replication on the candidate slave.</h1>
+
+<p>After having recently set up chained replication on a MySQL server, configuring replication for redis was quite refreshing.  To do so, log onto your candidate slave and issue the following command, remembering to change the
+placeholder below to the real candidate master IP.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>redis-cli
+</span><span class='line'>slaveof &lt;candidate_master&gt; 6379
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Data should not exist on your candidate master, but if for some reason it is, you can verify that the master/slave are synced by issuing the following command.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>redis-cli info | grep <span class="s1">&#39;# Replication&#39;</span> -A 10
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then look for <code>master_sync_in_progress:0</code> in the output.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># Replication</span>
+</span><span class='line'>role:slave
+</span><span class='line'>master_host:ec2-50-***.us-west-2.compute.amazonaws.com
+</span><span class='line'>master_port:6379
+</span><span class='line'>master_link_status:up
+</span><span class='line'>master_last_io_seconds_ago:1
+</span><span class='line'>master_sync_in_progress:0
+</span><span class='line'>slave_priority:100
+</span><span class='line'>slave_read_only:1
+</span><span class='line'>connected_slaves:0
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Step 3: Start the migration.</h1>
+
+<p>Now it&rsquo;s time to move your data.  The complexities of this operation are described in a great <a href="http://garantiadata.com/blog/real-time-synchronization-tool-for-redis-migration#.Uit9M2SG1Uu">article</a> by Garantia Data and are abstracted away with a fantastic <a href="https://github.com/GarantiaData/redis-migrate/blob/master/redis-migrate.py">script</a> they wrote to make your life great.  The script is short and, being python, very readable.  Understand the concepts and proceed.</p>
+
+<p>To summarize, the script will</p>
+
+<ul>
+<li>sync master to candidate master, showing progress</li>
+<li>prompt you to turn off the <code>read only</code> flag on the the candidate master</li>
+<li>wait for you to re-point your applications to the new candidate master</li>
+<li>prompt you to make the candidate master into a master</li>
+</ul>
+
+
+<p>The script can move a whole fleet of redis instances if you have them.</p>
+
+<p>So, let&rsquo;s get started. On a server with access to the master and candidate master, get the script</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>curl https://raw.github.com/GarantiaData/redis-migrate/master/redis-migrate.py &gt; redis-migrate.py
+</span><span class='line'>chmod +x redis-migrate.py
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and install the python dependencies</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>easy_install pip
+</span><span class='line'>pip install redis
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then run the script</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>./redis-migrate --src &lt;current_master&gt; --dst &lt;candidate_master&gt;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And follow the on-screen instructions.</p>
+
+<p>After you cut over the applications from the current master to the candidate master, and before you stop synchronization from your master to your slave, be sure to check that no more clients are connecting to the current master.  If you find that you have other connections, be sure you understand what they are doing.  In other words, be sure you have re-pointed all your apps.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>redis-cli client list | awk <span class="s1">&#39;{print $1}&#39;</span> | sed s/addr<span class="o">=</span>//g | sed s/:.*//g | sort | uniq
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And that&rsquo;s it.  We moved about 1.5G of cache in a few seconds because Redis is fast!</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Painless AWS Autoscaling With EBS Snapshots And Capistrano part 3]]></title>
     <link href="http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3/"/>
-    <updated>2013-06-29T09:47:00-05:00</updated>
+    <updated>2013-06-29T09:47:00-07:00</updated>
     <id>http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-3</id>
     <content type="html"><![CDATA[<div style="width: 250px; float: right; margin: 0 0 10px 10px; padding: 20px; border: 1px solid #ccc;">
   <h4>A Three Part Series:</h4>
@@ -115,7 +265,7 @@
   <entry>
     <title type="html"><![CDATA[Painless AWS Autoscaling With EBS Snapshots And Capistrano Part 2]]></title>
     <link href="http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2/"/>
-    <updated>2013-06-29T05:12:00-05:00</updated>
+    <updated>2013-06-29T05:12:00-07:00</updated>
     <id>http://tsabat.github.io/blog/2013/06/29/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano-part-2</id>
     <content type="html"><![CDATA[<div style="width: 250px; float: right; margin: 0 0 10px 10px; padding: 20px; border: 1px solid #ccc;">
   <h4>A Three Part Series:</h4>
@@ -470,7 +620,7 @@
   <entry>
     <title type="html"><![CDATA[Painless AWS Auto Scaling With EBS Snapshots And Capistrano]]></title>
     <link href="http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano/"/>
-    <updated>2013-06-28T09:10:00-05:00</updated>
+    <updated>2013-06-28T09:10:00-07:00</updated>
     <id>http://tsabat.github.io/blog/2013/06/28/painless-aws-autoscaling-with-ebs-snapshots-and-capistrano</id>
     <content type="html"><![CDATA[<div style="width: 250px; float: right; margin: 0 0 10px 10px; padding: 20px; border: 1px solid #ccc;">
   <h4>A Three Part Series:</h4>
@@ -482,7 +632,7 @@
 </div>
 
 
-<h2>Choices to Make</h2>
+<h3>Choices to Make</h3>
 
 <p><a href="http://aws.amazon.com/">AWS</a> (Amazon Web Services) auto scaling is a simple concept on the surface: You get an AMI, set up rules, and the load balancer takes care of the rest. However, actually getting it done is more complicated.</p>
 
@@ -490,7 +640,7 @@
 
 <p>We recently rolled out the following solution at <a href="http://codepen.io/">CodePen</a>. It keeps our AMIs static and our application ready for scaling on EBS (Elastic Block Store) snapshots. We can push code using <a href="https://github.com/capistrano/capistrano">Capistrano</a> and let a few scripts distribute the ever-changing code base to our fleet of servers. I&rsquo;d like to share the steps required to make it work.  This series of posts will walk you through the steps required to build an auto-scaling infrastructure that stays out of your way.</p>
 
-<h2>Overview</h2>
+<h3>Overview</h3>
 
 <p>The process can be summed up like this:</p>
 
@@ -502,7 +652,7 @@
 </ul>
 
 
-<h2>Before you start</h2>
+<h3>Before you start</h3>
 
 <p>This walk through assumes that you have a working Capistrano deployment going on AWS. If you need some help with that, the guys at <a href="http://beanstalkapp.com/">Beanstalk</a> have a <a href="http://guides.beanstalkapp.com/deployments/deploy-with-capistrano.html">great guide</a> for getting started.  We use the Capistrano <a href="https://github.com/capistrano/capistrano/wiki/2.x-Multistage-Extension">Multistage</a> to separate our our deployment environments.</p>
 
@@ -510,7 +660,7 @@
 
 <p>A functional AWS API Tools environment is a requirement as well, because this walkthrough will use them extensively. Although I do my development on a Mac, I prefer a Linux environment for this type of work. I keep an EBS-backed micro instance around for all my admin work. I found Eric Hammond&rsquo;s instructions for <a href="http://alestic.com/2012/09/aws-command-line-tools">installing aws command line tools</a> invaluable for this task.</p>
 
-<h2>Identifying Your Environments</h2>
+<h3>Identifying Your Environments</h3>
 
 <p>You&rsquo;ll be working in two environments for this tutorial.</p>
 
@@ -729,7 +879,7 @@
   <entry>
     <title type="html"><![CDATA[Installing a RapidSSL SSL cert on an AWS Load Balancer]]></title>
     <link href="http://tsabat.github.io/blog/2013/05/07/installing-a-rapidssl-ssl-cert-on-an-aws-load-balancer/"/>
-    <updated>2013-05-07T20:25:00-05:00</updated>
+    <updated>2013-05-07T20:25:00-07:00</updated>
     <id>http://tsabat.github.io/blog/2013/05/07/installing-a-rapidssl-ssl-cert-on-an-aws-load-balancer</id>
     <content type="html"><![CDATA[<p>Over at <a href="http://codepen.io">CodePen</a> it came time to renew our SSL cert.  I dutifully follwed the <a href="https://knowledge.rapidssl.com/support/ssl-certificate-support/index?page=content&amp;id=SO21322&amp;actp=search&amp;viewlocale=en_US">setup instructions</a>, but I was greeted with this error:</p>
 
@@ -777,7 +927,7 @@
   <entry>
     <title type="html"><![CDATA[Set Up A Static Host-Only Network For Virtualbox]]></title>
     <link href="http://tsabat.github.io/blog/2012/02/28/set-up-a-static-host-only-network-for-virtualbox/"/>
-    <updated>2012-02-28T09:09:00-06:00</updated>
+    <updated>2012-02-28T09:09:00-08:00</updated>
     <id>http://tsabat.github.io/blog/2012/02/28/set-up-a-static-host-only-network-for-virtualbox</id>
     <content type="html"><![CDATA[<h2>Intro</h2>
 
@@ -850,7 +1000,7 @@ eth1      Link encap:Ethernet  HWaddr 08:00:27:0e:e2:c0
   <entry>
     <title type="html"><![CDATA[How to manage your dotfiles with git]]></title>
     <link href="http://tsabat.github.io/blog/2011/12/28/how-to-manage-your-dotfiles-with-git/"/>
-    <updated>2011-12-28T21:45:00-06:00</updated>
+    <updated>2011-12-28T21:45:00-08:00</updated>
     <id>http://tsabat.github.io/blog/2011/12/28/how-to-manage-your-dotfiles-with-git</id>
     <content type="html"><![CDATA[<h3>Update</h3>
 
@@ -907,7 +1057,7 @@ git commit -a -m 'My first dotfile commit'
   <entry>
     <title type="html"><![CDATA[Chef Recipe To Upgrade Virtualbox Additions]]></title>
     <link href="http://tsabat.github.io/blog/2011/12/20/chef-recipe-to-upgrade-virtualbox-additions/"/>
-    <updated>2011-12-20T23:01:00-06:00</updated>
+    <updated>2011-12-20T23:01:00-08:00</updated>
     <id>http://tsabat.github.io/blog/2011/12/20/chef-recipe-to-upgrade-virtualbox-additions</id>
     <content type="html"><![CDATA[<p>Every time the guys at VirtualBox update their software, you have to scramble to find resources to upgrade your virtualbox guest additions.  You also get the following annoying message.</p>
 
@@ -930,7 +1080,7 @@ box.
   <entry>
     <title type="html"><![CDATA[Command-Line Resources]]></title>
     <link href="http://tsabat.github.io/blog/2011/12/19/command-line-resources/"/>
-    <updated>2011-12-19T08:07:00-06:00</updated>
+    <updated>2011-12-19T08:07:00-08:00</updated>
     <id>http://tsabat.github.io/blog/2011/12/19/command-line-resources</id>
     <content type="html"><![CDATA[<h3>SSH Tips</h3>
 
@@ -949,7 +1099,7 @@ box.
   <entry>
     <title type="html"><![CDATA[How to test out a shared vagrant box]]></title>
     <link href="http://tsabat.github.io/blog/2011/12/15/how-to-test-out-a-shared-vagrant-box/"/>
-    <updated>2011-12-15T12:17:00-06:00</updated>
+    <updated>2011-12-15T12:17:00-08:00</updated>
     <id>http://tsabat.github.io/blog/2011/12/15/how-to-test-out-a-shared-vagrant-box</id>
     <content type="html"><![CDATA[<h3>Intro</h3>
 
@@ -1010,7 +1160,7 @@ yourshell$ shared_box
   <entry>
     <title type="html"><![CDATA[Setting Up A Vagrant Development Environment]]></title>
     <link href="http://tsabat.github.io/blog/2011/12/12/setting-up-a-vagrant-development-environment/"/>
-    <updated>2011-12-12T13:59:00-06:00</updated>
+    <updated>2011-12-12T13:59:00-08:00</updated>
     <id>http://tsabat.github.io/blog/2011/12/12/setting-up-a-vagrant-development-environment</id>
     <content type="html"><![CDATA[<h3>Install the Vagrant gem</h3>
 
@@ -1179,7 +1329,7 @@ end
   <entry>
     <title type="html"><![CDATA[Installing Chef Client and Chef Server]]></title>
     <link href="http://tsabat.github.io/blog/2011/12/11/installing-chef-client-and-chef-server/"/>
-    <updated>2011-12-11T23:31:00-06:00</updated>
+    <updated>2011-12-11T23:31:00-08:00</updated>
     <id>http://tsabat.github.io/blog/2011/12/11/installing-chef-client-and-chef-server</id>
     <content type="html"><![CDATA[<h3>This guide will get you up and running with chef server and client on the same Windows 2008 Server.</h3>
 
@@ -1310,7 +1460,7 @@ knife client list
   <entry>
     <title type="html"><![CDATA[Vagrant Boxes and veewee]]></title>
     <link href="http://tsabat.github.io/blog/2011/12/08/vagrant-boxes-and-veewee/"/>
-    <updated>2011-12-08T22:02:00-06:00</updated>
+    <updated>2011-12-08T22:02:00-08:00</updated>
     <id>http://tsabat.github.io/blog/2011/12/08/vagrant-boxes-and-veewee</id>
     <content type="html"><![CDATA[<h3>11PM Thursday Night</h3>
 
